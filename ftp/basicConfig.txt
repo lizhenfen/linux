@@ -1,0 +1,38 @@
+软件安装：
+	yum install vsftpd -y
+配置：
+	chroot_local_user=YES  #限制用户只能在家目录下
+创建虚拟用户：
+	1.创建虚拟用户对应的系统用户：	
+		useradd -s /sbin/nologin virtftp
+	2.创建虚拟用户密码：
+		vi /etc/vsftpd/vsftpd_login
+			user1
+			passwd1
+		格式: 一行用户一行密码
+	3.修改文件权限 
+		chmod 600 /etc/vsftpd/vsftpd_login
+	4.生成数据库文件：
+		db_load -T -t hash -f /etc/vsftpd/vsftpd_login /etc/vsftpd/vsftpd_login.db
+		
+创建用户的配置文件：
+	1.创建虚拟用户的配置文件目录：
+		mkdir /etc/vsftpd/vsftpd_user_conf && cd !$
+	2.切换到配置文件目录,创建用户的同名文件
+		vi user1 
+			local_root=   #指定虚拟用户家目录
+			anonymous_enable=NO #匿名用户是否可以访问
+			write_enable=YES  #是否有写权限
+			local_umask=022   #umask权限
+			anon_upload_enable=NO  #匿名用户是否可以上传
+			idle_session_timeout=600  #空闲时间
+			data_connection_timeout=600  #数据连接超时
+			local_max_rate=5000   #下载速率
+	3.修改虚拟用户家目录的权限：
+		chown -R virtftp:virtftp /path_to_virtual_user_home  #用户和组指定为 虚拟用户绑定的系统用户
+		
+修改认证方式(默认使用系统用户密码)：
+	增加认证认证
+		vi /etc/pam.d/vsftpd 
+			auth sufficient /lib/security/pam_userdb.so db=/etc/vsftpd/vsftpd_login
+			account sufficient /lib/security/pam_userdb.so db=/etc/vsftpd/vsftpd_login

@@ -1,0 +1,73 @@
+ServerSignature On #安全选项，发生错误时,off不显示关于服务器的消息,
+					on: 设置了ServerAdmin 选项，会自动则替换成email
+					
+AllowOverride参数,用于目录及以下文件权限设置：
+　　All 缺省值，使访问控制文件可以覆盖系统配置 
+　　None 服务器忽略访问控制文件 
+　　Options 允许访问控制文件中可以使用Options参数定义目录的选项 
+　　FileInfo 允许访问控制文件中可以使用AddType等参数设置 
+　　AuthConfig 允许访问控制文件使用AuthName，AuthType等针对每个用户的认证机制，这使目录属主能用口令和用户名来保护目录 
+　　Limit 允许对访问目录的客户机的IP地址和名字进行限制 
+Options控制当前目录下的访问特性，以下为常用的特性选项：
+　　All 所有的目录特性都有效，这是缺省状态 
+　　None 所有的目录特性都无效 
+　　FollowSymLinks 允许使用符号连接，这将使浏览器有可能访问文档根目录（DocumentRoot）之外的文档 
+　　SymLinksIfOwnerMatch 只有符号连接的目的与符号连接本身为同一用户所拥有时，才允许访问，这个设置将增加一些安全性 
+　　ExecCGI 允许这个目录下可以执行CGI程序 
+　　Indexes 允许浏览器可以生成这个目录下所有文件的索引，使得在这个目录下没有index.html（或其他索引文件）时，能向浏览器发送这个目录下的文件列表 
+#--------------------------------------------------------------------------------------------
+虚拟主机:
+	NameVirtualHost 192.168.1.64
+	<VirtualHost 192.168.0.1>（虚拟主机IP）
+	　　 ServerAdmin 111@xxx.com（第一个虚拟主机Email）
+	　　 DocumentRoot H:/web001（第一个虚拟主机目录）
+	　　 ServerName www.xxx.org（第一个虚拟主机域名）
+	　　 ErrorLog logs/www.xxx.org-error.log（第一个虚拟主机错误日志）
+	　　 CustomLog logs/www.xxx.org-access.log common（第一个虚拟主机数据）
+	</VirtualHost>
+	　　
+	<VirtualHost 192.168.0.2>（虚拟主机IP）
+	　　 ServerAdmin 111@xxx.com（第二个虚拟主机Email）
+	　　 DocumentRoot H:/web002（第二个虚拟主机目录）
+	　　 ServerName www.xxx2.org（第二个虚拟主机域名）
+	　　 ErrorLog logs/www.xxx2.org-error.log（第二个虚拟主机错误日志）
+	　　 CustomLog logs/www.xxx2.org-access.log common（第二个虚拟主机数据）
+	</VirtualHost>
+#--------------------------------------------------------------------------------------------
+用户认证：
+	<Directory "/var/www/">
+		AllowOverride AuthConfig
+		AuthName "Need username and password"
+		AuthType Basic
+		AuthUserFile /data/.htpasswd
+		require valid-user
+	</Directory>
+#--------------------------------------------------------------------------------------------	
+重定向:
+  Rewrite方式:
+	1.查看是否安装rewrite模块：
+		apachectl -M | grep "rewrite"
+	2.重写规则：
+		<IfModule mod_rewrite.c>
+		RewriteEngine on
+		RewriteCond %{HTTP_HOST} ^www.source.com$ [OR]    #条件,要进行跳转的
+		RewriteCond %{HTTP_HOST} ^www.source-2.com$       #第二个条件  == RewriteCond %{HTTP_HOST} !^www.destination.com
+		RewriteRule ^/(.*)$ http://www.destination.com [R=301,L]   #301 永久跳转 302临时跳转， L:last
+		</IfModule>
+  Redirect方式： 
+	1. 模块mod_alias
+		apachectl -M | grep "alias"
+	2.
+		<VirtualHost 10.1.146.163:80>  
+		DocumentRoot /home/qmhball/web/mybranches/stat_3276/oa/  
+		ServerName oalogin.com  
+		Redirect 301 /login.php http://www.soso.com   #301未指定时,表示302
+		</VirtualHost> 
+#--------------------------------------------------------------------------------------------	
+日志切割：
+	ErrorLog "|/usr/sbin/rotatelogs -l /var/log/httpd/zabbix/error_%Y%m%d.log 86400"
+	CustomLog "|/usr/sbin/rotatelogs -l /var/log/httpd/zabbix/zabbix_%Y%m%d.log 86400" common
+#--------------------------------------------------------------------------------------------		
+记录指定 URI到日志
+	SetEnvIf Request_URI "^/aaa/.*" aaa-request
+	CustomLog /usr/local/apache/logs/access.log combined env=!aaa-request  #记录日志

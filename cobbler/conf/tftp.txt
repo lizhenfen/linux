@@ -1,0 +1,18 @@
+文件： /etc/xinetd.d/tftp
+yum install xinetd
+yum install tftp
+yum install xinetd
+
+service tftp
+{
+        socket_type             = dgram
+        protocol                = udp
+        wait                    = yes
+        user                    = root
+        server                  = /usr/sbin/in.tftpd
+        server_args             = -s /var/lib/tftpboot  #指定目录
+        disable                 = no   #此处为no
+        per_source              = 11
+        cps                     = 100 2
+        flags                   = IPv4
+}

@@ -1,0 +1,2 @@
+增加权限：
+lib64/ld-linux-x86-64.so.2 /bin/chmod 755 /bin/chmod

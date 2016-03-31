@@ -1,0 +1,15 @@
+问题：
+	/var/log/messages 出现： kernel: nf_conntrack: table full ,dropping packet
+		原因： 防火墙的连接跟踪满
+		临时处理方法(/etc/sysctl.conf)：
+					-------------------------------------------
+					   net.nf_conntrack_max = 25000000
+					   net.netfilter.nf_conntrack_max = 25000000
+					------------------------------------------
+					   net.netfilter.nf_conntrack_tcp_timeout_established =180
+					   net.netfilter.nf_conntrack_tcp_timeout_time_wait = 120
+					   net.netfilter.nf_conntrack_tcp_timeout_close_wait = 60
+					   net.netfilter.nf_conntrack_tcp_timeout_fin_wait = 120
+		其他方法(raw表):
+			iptables -t raw -A PREROUTING -d 1.2.3.4 -p tcp --dport 80 -j NOTRACK
+			iptables -A FORWARD -m state --state UNTRACKED -j ACCEPT

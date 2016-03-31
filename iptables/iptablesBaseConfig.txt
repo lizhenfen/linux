@@ -1,0 +1,59 @@
+iptables需要用到的模块：
+	lsmod | egrep "nat|filter"
+命令帮助:
+	iptables -V  		 #查看版本
+	iptables -nvL		 #数字, 详细，显示列表
+	iptables -F          #临时清空规则 长格式: --flush
+	iptables -X          #删除自定义链
+	iptables -Z	   		 #清空链计数  长格式： --zero
+	iptables -N 		 #增加自定义链
+	iptables --line-number  #显示规则序号
+	iptables -P chains_name options  #指定默认规则 长格式: --policy
+	iptables -A          #在最后增加规则
+	iptables -I			 #默认插入到第一行
+	
+保存当前使用的规则:
+	iptables-save > /etc/sysconfig/iptables 
+
+实例:
+	iptables -F
+	iptables -X
+	iptables -Z
+	iptables -A INPUT -p tcp --dport 25532 -s 192.168.20/24 -j ACCEPT 
+	iptables -A INPUT -i lo -j ACCEPT
+	iptables -A OUTPUT -o lo -j ACCEPT
+	iptables -t table_name -[A|D|I] chains_name rules options[ACCEPT|DROP|REJECT]
+	iptables -t filter -A INPUT -p tcp --dport 25532 -j ACCEPT #增加规则,默认表是filter
+	iptables -t filter -D INPUT -p tcp --dport 25532 -j ACCEPT #删除指定规则
+	iptables -t filter -D INPUT line-number   #删除指定序号的规则
+	iptables -t filter -A INPUT -i eth0 -s 127.0.0.1 -j DROP  #封锁源地址
+	iptables -t filter -A INPUT -i eth0 -s 192.168.27.0/24 -j DROP  #封锁源网络
+	iptables -t filter -A INPUT -i eth0 ! -s 127.0.0.1 -j DROP  #封锁除自己外的所有IP
+	iptables -t filter -A INPUT -p icmp --icmp-type 8 -i eth0 -j DROP #禁ping
+	iptables -t filter -A INPUT -p !icmp -j DROP  #封非icmp协议的所有其他协议
+	iptables -t filter -I INPUT -p tcp --mutilple --dport 21,22,20 -j DROP #封锁多个指定端口
+	iptables -t filter -I INPUT -p tcp --dport 1000:9000 -j DROP #封锁1000到9000端口
+
+	-m state --state [NEW|ESTABLISHED|RELATED|INVALID]   #封锁状态,ftp需要使用
+	-m limit --limit n/[seconde|minute|hour] #指定时间的请求速率
+			 --limit-burst n   #同一时间允许通过的请求书，默认为5, 并发
+	#上网
+		iptables -t nat -A POSTROUTING -s 192.168.27.0/24 -o eth1 -j SNAT --to-source 202.106.0.20
+	#映射端口
+		iptables -t nat -A PREROUTING -d 202.106.0.20 -p tcp --dport 80 -j DNAT --to-destination 192.168.27.20:8000
+	# 跟踪信息
+	设置：
+		iptables -t raw -A OUTPUT -p udp -j TRACE
+		iptables -t raw -A PREROUTING -p udp -j TRACE
+	加载模块：
+		modprobe ipt_LOG
+	调试消息输出到：/var/log/kern.log		
+推荐使用：
+	第一次配置时使用命令, 保存规则到文件，以后直接修改文件
+	导出:
+		iptables-save > iptables.conf
+	导入:
+		iptables-restore < /iptables.conf 
+	
+
+	

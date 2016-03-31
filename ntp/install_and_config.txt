@@ -1,0 +1,16 @@
+安装：
+	yum install ntp
+	配置文件： /etc/ntp.conf
+	restrict 192.168.27.0/24  #允许 27网段的地址可以访问
+	server 127.127.1.0   	  # 指定 服务器
+	fudge 127.0.0.1 stratum 10  #若找不到服务，设定 本机更新
+	ntpstat #查看 NTP服务的允许状态
+	ntpq -p #查看NTP的更新状态
+如果不能依然无法同步，记得查看防火墙	
+开机启动:
+	chkconfig --level 3 ntpd on
+	
+如果不想安装ntp server ,可以使用下面的命令更新：
+crontab -e 
+#every 5 minines update time
+*/5 * * * * /bin/ntpdate ntp_server_ip

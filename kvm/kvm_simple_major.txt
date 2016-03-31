@@ -1,0 +1,11 @@
+CPU优化： 
+	略过前2个CPU,修改xml文件，绑定到其他cpu
+内存优化：
+   /sys/kernel/mm/
+	ksm/pages_shared 0
+	ksm/pages_sharing 0
+	transparent_hugepage/enabled  always
+	transparent_hugepage/defrag   always
+	transparent_hugepage/khugepaged/defrag 0
+IO优化：
+   cfq调度,none

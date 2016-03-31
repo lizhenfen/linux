@@ -1,0 +1,20 @@
+
+httpd自带状态监控模块(mod_status|mod_info)
+	mod_status：Apache当前的连接状态, 设置ExtendedStatus On可以输出更完整详细的内容
+	mod_info： Apache所有运行状态的完整输出，包括配置文件等，有点类似于phpinfo
+源码安装的默认在httpd-info.conf里面有相关配置，可以在httpd.conf里面进行include。
+	Include conf/extra/httpd-info.conf
+httpd.conf：
+	<Location /server-status>
+		SetHandler server-status
+		Order deny,allow
+		Deny from all
+		Allow from 124.192.11.16
+	</Location>
+	ExtendedStatus On
+	<Location /server-info>
+		SetHandler server-info
+		Order deny,allow
+		Deny from all
+		Allow from 124.192.11.16
+	</Location>

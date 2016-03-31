@@ -1,0 +1,29 @@
+帮助：http://blog.sina.com.cn/s/blog_3dbab2840100dzbg.html
+
+动态库：
+	/etc/pam.d/login
+    session required /lib/security/pam_limits.so
+	**********
+    另外确保/etc/pam.d/system-auth文件有下面内容
+    session required /lib/security/$ISA/pam_limits.so
+    这一行确保系统会执行这个限制。/etc/pam.d/login
+    session required /lib/security/pam_limits.so
+	**********
+    另外确保/etc/pam.d/system-auth文件有下面内容
+    session required /lib/security/$ISA/pam_limits.so
+    这一行确保系统会执行这个限制。
+	
+ulimit -a  #查看系统资源限制
+ulimit -n #查看打开的文件数
+ulimit -n 65535 #临时设置打开的文件数
+ulimit -u 10000  #设置进程数
+设置为无限制：
+	数据段长度：ulimit -d unlimited
+	最大内存大小：ulimit -m unlimited
+	堆栈大小：ulimit -s unlimited
+	CPU 时间：ulimit -t unlimited
+	虚拟内存：ulimit -v unlimited
+永久生效：
+	/etc/security/limits.conf
+	* soft  nofile = 32768
+	* hard  nofile = 65536

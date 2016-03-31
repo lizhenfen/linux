@@ -1,0 +1,14 @@
+1. 安装mysql数据库
+2. 安装pam-mysql
+3. 创建vsftp库和相关的表并授权
+	>create database vsftp;
+	>use vsftp ;
+	>create table users ( name char(16) binary ,passwd char(125) binary ) ;
+	>insert into users (name,passwd) values ('test001',password('123456'));
+	>insert into users (name,passwd) values ('test002',password('234567'));
+	>grant select on vsftp.users to vsftpdguest@localhost identified by 'vsftpdguest';
+4. 创建虚拟账户的配置文件
+5. 编辑验证文件(/etc/pam.d/vsftpd)
+	#%PAM-1.0
+	auth required /usr/lib/pam_mysql.so user=vsftpdguest passwd=vsftpdguest host=localhost db=vsftp table=users usercolumn=name passwdcolumn=passwd crypt=2
+	account required /usr/lib/pam_mysql.so user=vsftpdguest passwd=vsftpdguest host=localhost db=vsftp table=users usercolumn=name passwdcolumn=passwd crypt=2

@@ -1,0 +1,83 @@
+同步方式;
+  rsync
+	scp,nfs,sftp,http,samba,rsync,drbd(基于文件系统)
+	开源的，快速的，适合所有系统，本地远程数据同步
+	增量拷贝, 删除文件和目录
+	同步算法： quick check, 
+		可以根据大小，修改时间，权限，属主，同步一个文件中变化的内容 等设置同步数据
+	使用场景：
+	  定时同步：
+		2个服务器之间数据同步
+		集群架构服务器备份
+	  实时同步(存储)：
+		rsync + inotify(监控文件变化)
+		rsync + sersync(监控文件变化)
+	工作方式：
+		local:
+			直接本地同步,相当于cp
+			语法： rsync -av src desc
+		remote shell：
+			rsync -e "ssh -p ssh_port" src desc 
+		daemon:
+	参数：
+	    同步时,目录后跟/,是 即包含目录名也包含目录下的文件
+		目录后不跟/,只包含目录下的文件
+		--version: 版本号
+		-a: 归档模式,保持所有的文件属性 ==  -rtopgDl
+		--delete: 删除
+			src 没有的文件，desc也不能有；src有的文件，desc也必须有
+		-r: 递归
+		-z: 压缩传输
+		--compress-level=num  #压缩等级
+		-v: 详细信息,传输时的进度等信息
+		-e；指定通道
+		--exclude=  #排除指定的文件
+		--bwlimit=   限制传输速度
+	   生产中使用参数： -avz
+守护进程方式：
+	配置文件: /etc/rsyncd.conf
+	# man rsync when you need more info
+	# global config
+	uid = rsync
+	pid = rsync
+	#secure
+	use chroot = no
+	max connections = 30
+	timeout = 300
+	pid file = /var/run/rsyncd.pid
+	lock file = /var/run/rsyncd.lock
+	log file = /var/log/rsync.log 
+	
+	# backup data config 
+	[data]
+		path = /data/web/
+		ignore errors
+		read only = false
+		list = false
+		hosts allow = 192.168.27.66
+		hosts deny  = 0.0.0.0/32
+		# virtual user 
+		auth users  = rysnc_backup
+		secrets file = /etc/rsync.password
+启动：
+	rsync --daemon  
+检测：
+	ss -ltnp | grep 873
+	useradd -s /sbin/nologin rsync 
+	#创建虚拟用户
+	echo "rsync_backup:passwordd" > /etc/rsync.password
+	chmod 600 /etc/rsync.password
+	
+客户端：
+	echo "passwordd" > /etc/rsync.passwo
+	chmod 600 /etc/rsync.password
+	语法：rsync -avz rsync_backup_user@rysncd_server::src desc  --password-file=/etc/rsync.password  #指定本地密码文件
+	rsync -avz rsync://rsync_backup_user@rysncd_server/src desc  --password-file=/etc/rsync.password  #指定本地密码文件
+	    rsync -avz rsync_backup@rysncd_server::data /data  
+排除：
+  客户端：
+	--exclude={file11,file2,..}    #指定要排除的文件
+	--exclude={a..g}   #指定排除连续的文件
+	--exclude-from=FILE  #指定一个文件，在文件中输入要排除的文件
+  服务器： man rsyncd.conf 
+	exclude=   #空格隔开

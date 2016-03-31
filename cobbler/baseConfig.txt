@@ -1,0 +1,53 @@
+﻿参考网址：
+	KS文件： http://www.osyunwei.com/archives/7577.html
+	安装：http://www.linuxidc.com/Linux/2015-09/122945.htm
+	原理：http://www.361way.com/cobbler-principle/4328.html
+安装软件：
+	yum install epel dhcp tftp rysnc xinetd httpd -y
+	yum install cobbler -y
+关闭selinux:
+	seenforce 0 
+	sed -i 's/^SELINUX=.*/SELINUX=disable/g' /etc/selinux/config 
+修改配置：
+	默认文件路径:/etc/cobbler/settings: 
+	#--------------------------------------
+	#配置是否由cobbler集成管理
+	#0: 自主管理服务
+    #1: cobbler管理的服务
+		manage_dhcp: 0
+		manage_dns: 0
+		manage_tftpd: 0
+		manage_rsync: 0
+	#--------------------------------------
+启动服务：
+	systemctl start dhcpd  67/udp
+	systemctl start tftpd  69/udp 
+	systemctl start rsyncd
+	systemctl start httpd 
+	systemctl start cobblerd
+	注意：首次启动服务一般会报错,运行以下命令,参照提示解决
+		cobbler check
+		systemctl restart cobblerd #错误处理完成后，重启服务
+		cobbler sync    #同步
+创建应答文件ks.cfg:
+	1. 手动设置
+		软件包: yum install -y system-config-kickstart
+		命令运行： system-config-kickstart    #需要desktop支持
+	2. 使用安装系统时的文件
+		系统安装完成后,root用户家目录下默认存在anaconda-ks.cfg, 修改即可
+	    生成配置用户登录密码：openssl passwd -1 -salt root
+	3. 验证ks.cfg文件
+		ksvalidator ks.cfg
+	4. 复制配置文件到cobbller的ks目录
+		cp ks.cfg /var/lib/cobbler/kickstarts/
+	5. 导入ks.cfg文件
+		cobbler profile add --name='centos-7-base' --distro='centos-7-x86_64' --kickstart=/var/lib/cobbler/kickstarts/ks.cfg
+导入系统镜像：
+	1. 挂载镜像文件 
+		mount /dev/cdrom /mnt/centos-7 
+	2. 导入系统镜像到cobbler： 	
+		cobbler import --name='centos-7-base' --path=/mnt/centos-7   #--name 指定的文件和导入ks.cfg文件时--name指定的名称一样
+	3. 查看cobbler已存在的profile:
+		cobbler profile list
+
+

@@ -1,0 +1,25 @@
+快速清理木马流程   
+
+首先top命令,查看是否有未曾见过的进程
+这里假设木马的名字是nshbsjdy，如果top看不到，可以在/etc/init.d目录下面查看
+1、首先锁定三个目录，不能让新木马文件产生
+
+chmod 000 /usr/bin/nshbsjdy
+chattr +i /usr/bin
+chattr +i /bin
+chattr +i /tmp
+chattr +i /tmp
+2、删除定时任务及文件以及开机启动文件
+
+删除定时任务及文件
+rm -f /etc/init.d/nshbsjdy
+rm -f /etc/rc#.d/木马连接文件
+3、杀掉木马进程
+
+killall -9 nshbsjdy
+4、清理木马进程
+
+chattr -i /usr/bin
+rm -f /usr/bin/nshbsjdy
+
+处理完成之后再一次检查一下以上各目录，尤其是/etc目录下面最新修改的文件。

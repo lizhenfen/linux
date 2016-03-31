@@ -1,0 +1,37 @@
+初始设置密码： 
+	mysqladmin -uroot -p'oldpass' password 'newpasswd'
+密码忘记:
+	1. 修改配置文件(my.cnf):
+			skip-grant 	     #跳过密码
+	2. 重启mysql
+			service mysqld restart
+	3. 修改用户密码
+			use mysql; 
+			update user set password=password('pass') where user='root'
+
+远程登录数据库：
+	mysql -uroot -h'remote_addr' -P'Port' -p'passwd'
+	mysql -S'/path/to/sock'
+	查看当前用户：   select user();
+	查看当前数据库： select database();
+	查看当前版本：   select version();
+	查看数据库的编码：show variables like '%char%';
+修改数据库的字符集：
+  第一种：
+	default-character-set = utf8 
+	character_set_server = utf8
+	修改完成后重启mysql服务
+  第二种：
+    set character_set_client = utf8;
+	set character_set_connection = utf8;
+	set character_set_database = utf8;
+	set character_set_results = utf8;
+	set character_set_server = utf8;
+	set collcation_connection = utf8;
+	set collcation_database = utf8;
+	set collcation_server = utf8;
+	
+	set names 'utf8'; 相当于
+		set character_set_client = utf8;
+		set character_set_results = utf8;
+		set character_set_connection = utf8;

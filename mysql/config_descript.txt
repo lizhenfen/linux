@@ -1,0 +1,29 @@
+sock=/tmp/mysql.sock   #设置sock文件
+port=3306   		   #设置监听端口
+skip-locking   			#sock模块不监听 lock锁
+skip-name-resolve	   #不使用dns解析
+skip-networking        #禁止网络访问,与上面冲突
+skip-grant			   #跳过root密码
+update user set password=password('pass') where user='root'  #更改密码
+key_buffer = 384M      #索引块缓冲区大小,视内存
+table_open_cache = 512 # 默认64, 表缓存,设置为并发连接*N(N为每个文件的描述符)
+max_allowed_packet=4M  #接受的数据包的大小, 增加该值十分安全, 仅当需要才分配
+sort_buffer_size=2M    #排序缓冲区
+read_buffer_size=3M    #读取缓冲区
+join_buffer_size=2M    #联合操作缓冲区
+query_cache_size=32M   #查询结果缓冲区
+read_rnd_buffer_size=2M #随机读缓冲区
+myisam_sort_buffer_size=64M #myisam表发生变化时重新排序需要的缓冲区
+thread_concurrency=8  #最大并发线程,逻辑CPU*2 
+thread_cache_size=8   #可重新利用的缓存中的线程数，1G 8, 2G 16, 4G上 64 
+max_connections=1000  #最大连接数
+max_connect_error=6000 #同一主机超过该错误连接数,将禁用此主机，flush host 解除
+open_files_limit=65535 #打开的文件描述符
+skip-locking    #避免外部锁定
+wait_timeout=8  #空闲的连接超时时间,默认28800
+interactive_timeout =8  
+
+#--------------------------
+log_query_time=1  #慢查询时间
+log_slow_queryries=/data/mysql/slow.log  #记录慢查询的语句
+#-----------------------------

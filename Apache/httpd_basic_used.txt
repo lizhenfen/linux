@@ -1,0 +1,25 @@
+配置参数：http://www.php100.com/html/webkaifa/apache/2009/0418/1192.html
+httpd方式:
+	#使用多路处理模块(mpm)
+	prefork: 非线程,多进程,预生成进程
+	worker: 多进程多线程，每个进程生成固定数量的线程
+	event: 多线程, 速度快, 不能在https模式中使用
+apache配置：
+	1. 修改目录权限(<Directory />)，权限是可以继承的
+		1.在每个Directory目录下, 设置权限
+			Order allow,deny
+　			Allow from all
+		2. 使用.htaccess文件
+			AllowOverride None   		#忽略.htaccess文件
+			AccessFileName .htaccess  	#指定权限配置文件
+	2. 增加类型(<IfModule mime_module>)
+	3. 增加索引文件
+	4. 修改ServerName
+命令帮助:
+	apachectl -M :查看模块编译类型(静态编译,动态编译)
+	apachectl -t: 查看配置文件是否正确。、
+	httpd -l: 查看静态编译模块 的c库
+	httpd -v: 查看httpd版本
+扩展模块安装：
+	apxs -i -a -c /source/mod_name.c
+

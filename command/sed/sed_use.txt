@@ -1,0 +1,116 @@
+sed [option] [command] inputfile
+option:
+	-n: 默认不输出
+	-e: 执行多个命令
+	-f: 指定执行命令的文件
+	-i: 直接修改原文件, 会修改源文件的所有者, 配合-c 不更改源文件
+	-l: 指定行的长度,需要和l命令配合
+command:
+	p: 打印输出
+	d: 删除模式空间的行
+	w file: 写入到文件, 同时输出到屏幕, -n 屏幕不显示
+	i: 忽略大小写
+	n；打印当前模式空间的内容,然后清空当前模式空间,继续读取下行数据
+	e: 执行模式，将模式空间的任何内容当作shell执行
+	'{;}' : 可以将多个命令分组执行, 与 -e 等同 
+指定地址范围：
+	sed -n '1p' passwd #打印第一行
+	sed -n '1,2p' passwd #打印第一行 到 第 二行
+	sed -n '2,+2 p' passwd #从 第二行 开始打印, 向后打印2 行
+	sed -n '2,~2 p' passwd #作用同上
+	sed -n '2~2 p' passwd  #从第二行开始，每隔2行打印
+	sed -n '/root/ !p' passwd #匹配root的行不打印
+模式匹配：
+	sed -n '/root/p' passwd #打印包含root的行  精准匹配
+	sed -n '/root/,4 p' passwd #打印第一次匹配root的行到第四行, 若无，打印第四行以后匹配到的行
+	sed -n '/root/,/lizhen/ p' passwd #打印匹配root的行 到 lizhen的行
+删除：
+	sed 'd' passwd
+模式写入文件：
+	sed 'w file' passwd #屏幕打印, 同时写入文件
+	sed -n -e '/root/ w file.txt' -e '/nobody/ w file.txt' passwd #匹配root或nobody的 行写入
+	
+实例：
+	sed -n '/^root/p' /etc/passwd  #只输出以root开头的行
+	sed -n -e '/^root/p' -e '/^nobody/p' /etc/passwd #输出以root 或 bobody开头的行
+	sed -n '{/^root/p;/^nobody/p}' /etc/passwd #同上
+
+脚本的执行： read, excute, print, repeat
+
+
+替换(默认只替换第一次出现的)：
+	sed '[address-range|pattern-range] s/original-string/replace-string/[substitue-flags]' 
+	
+	sed 's/root/ROOT/' passwd #root被替换成ROOT
+	sed 's/root/ROOT/g' passwd #把每行中出现的所有的root都替换
+	sed '1,2 s/root/ROOT/' passwd #第一行到第二行 中的root替换成ROOT
+	只替换指定的位置(1..512):
+		sed 's/a/A/2' passwd #只替换第二次出现的 字母a
+执行：
+	file:
+		/etc/passwd
+	sed 's/^/ls -l /e' file  #显示 ls -l /etc/passwd
+	
+替换综合：
+	
+&的作用：
+	获取匹配到模式
+	sed -n 's/^.*/<&>/' passwd
+分组替换： 
+	\(开始, \)结束， 用在回溯引用
+	sed 's/\([^:]*\).*/\1/' passwd #开头到第一个: 之间
+	echo "The Good Sky" | sed 's/\(\b[A-Z]\)/\(\1\)/g' #单词的开头加（）
+	
+修改源文件时,自动备份：
+	sed -ibak 's/root/ROOT/' passwd
+	sed --in-place=bak 's/root/ROOT/' passwd  #两种方式相同,
+    sed -ibak -c 's/root/ROOT/' passwd #源文件修改同时不更改所有者
+附加命令：
+	a:  在指定位置后追加行
+		sed '$ a lizhen:x' passwd  #在passwd文件的末尾追加lizhen:x 行,追加多行使用\n换行
+	i: 在指定位置前插入
+		同a
+	c： 更改当前行
+		同a
+	l: 打印不可见字符, 若 后面指定数字, 则自动在第n个字符处插入不可见字符
+		sed -n 'l' passwd  #打印不见字符
+		sed -n 'l 10' passwd #在第10个字符处插入不可见字符
+	=：在每行的前面增加行号
+		sed '=' passwd
+		sed '1 =' passwd #只打印第一行的行号
+	y: 转换字符	
+		sed 'y/abcde/ABCDE/' passwd #把passwd文件中的字符abcde转换成大写
+	可以同时操作多个文件：
+		sed -n '/root/p' passwd group
+	q: 退出执行
+		sed  '5 q' passwd #只打印前5行,到第5行后退出
+	r: 读取文件
+		sed '/root/ r log.txt' passwd #把log.txt的文件内容 附加到root后
+保持空间和 模式空间
+	模式空间： sed执行正常的流程,内置缓冲区,存放读取,修改的内容
+	保持空间： 存放临时数据,sed可以在保持空间和模式空间交换数据,不能再保持空间执行sed命令,每次执行命令
+				模式空间会被清空,而保持空间数据不变
+	x: 交换模式空间和保持空间数据
+		sed -n -e '{x;n}' -e "/lizhen/{x;p}" passwd
+		解析：{x:n} 交换模式空间和保持空间的数据,n读取下一行数据
+			   {x;p} 如果模式空间匹配lizhen, 保持空间为上行数据, 交换到模式空间并打印
+	h: 复制当前模式空间的数据到保持空间,模式空间数据不变
+		sed -n -e '/lizhen/!h' -e '/lizhen/{x;p}' passwd
+		解析：'/lizhen/!h' 若模式空间不是lizhen则复制到保持空间,
+			  '/lizhen/{x;p}' 若匹配lizhen,交换数据,打印
+	H: 包模式空间数据追加到保持空间
+		sed -n -e '/lizhen/!h' -e '/lizhen/{H;x;p}' passwd
+	g: 把保持空间的数据复制到模式空间
+		sed -n -e '/lizhen/!h' -e '/lizhen/{g;p}' passwd
+	G: 把保持空间数据追加到模式空间
+		sed -n -e '/lizhen/!h' -e '/lizhen/{G;p}' passwd
+	N: 读取下一行数据,附加到模式空间
+		sed -n -e '{N;s/\n/\t/p}' passwd
+		解析： 读取下一行数据到模式空间,替换换行符,然后打印
+	P: 读取数据,直到遇见换行符\n 
+	D: 删除模式空间的部分内容,直到遇见换行符\n；忽略后续命令,在当前模式空间从头开始执行
+		sed -e '/@/{N;/@.*@/{s/@.*@//;P;D}}'
+	b 和 :label标签： 循环和分支
+		:label 定义一个标签
+		b label 会跳到标签后面的命令，不跟任何标签时直接跳到结尾
+	t: 如果前面的命令执行成功就跳转到t指定的标签

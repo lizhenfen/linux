@@ -1,0 +1,8 @@
+yum repo优先级设置：
+	安装软件包：  yum  install yum-priorities
+	配置文件：
+		/etc/yum/pluginconf.d/priorities.conf
+		启用： enabled=1  
+		禁用： enabled=0
+	修改(/etc/yum.repos.d/)中repo的优先级：
+		增加priority=n   #n为1-99， 值越大，优先级越小

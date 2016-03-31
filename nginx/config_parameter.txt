@@ -1,0 +1,92 @@
+worker_processes auto;  	#IO密集型,设置为CPU个数的1.5|2 倍
+worker_rlimit_nofile 65535; #workder进程打开的最大文件数，未设置时为操作系统的限制，设置后可超过系统的限制,不会出现"too many open files"
+worker_connections 4096;    # 一个worker可以同时打开的连接数
+multi_accept on;            # 收到一个新通知后，接受尽可能多的连接
+use epoll|kqueue  			#使用epoll模型
+ 
+http{
+	listen 81 default_server;   #监听端口,并设置为 默认虚拟主机
+	default_type text/html; #设置文件默认的MIME-type 
+	charset utf-8; #设置头文件中默认字符集
+	include /etc/nginx/mime.types;  #包含文件
+	server_tokens off; #隐藏版本，增加安全； 配置fastcgi.conf  fastcgi_param SERVER_SOFTWARE nginx
+	sendfile on;   #减少文件在 系统空间 <--> 用户空间 双向拷贝时间, 
+	tcp_nopush on;    # 解决网络IO拥挤问题，实时性较差
+	tcp_nodelay on;   # 实时性好，可能存在网络拥堵
+	access_log off;   # 关闭日志, nginx会更快
+	error_log ;       # 只记录严重错误
+	keepalive_timeout 10; 			# 长连接
+	client_header_timeout 10;  		#请求头超时时间
+	client_body_timeout 10;    		#请求体超时时间，设置低
+	reset_timeout_connection on ; 	#告诉nginx关闭不响应的客户端连接
+	send_timeout 10 ; 				#设置客户端的响应超时，不会用于转发，只存在2次客户端的读取
+	limit_conn_zone $binary_remote_addr zone=addr:5m; #保存key的共享内存的参数
+	limit_conn addr 100;  			#设置最大连接数
+	return  501; 					# 直接返回状态码
+	#----------------gzip----------------------------------------------
+	gizp on; 					#采用gzip方式压缩数据
+	gzip_disable "msie6";  		#为指定的客户端禁用gzip ,设置为ie6或更低
+	gzip_static on;  			#在压缩资源前，先查找是否有压缩过的资源
+	gzip_proxied any;  			#运行或禁止压缩基于请求和响应的响应流，any 压缩所有
+	gzip_min_length 1000; 		#启用压缩的最少字节数，少于1000字节不压缩
+	gzip_comp_level 6; 			#压缩等级，1-9,9最慢
+	gzip_types text/plain text/css application/json application/x-javascript text/xml ; 	#设置需要压缩的数据格式
+	#-------------cache  nginx服务器缓存---------------------------------------------------
+	open_file_cache max=10000 inactive=20s; 	#打开缓存的同时，也指定缓存的最大数据和婚缓存时间
+	open_file_cache_valid 30s; 					#指定正确信息的间隔时间
+	open_file_cache_min_uses ； 				#指定不活动时期间最小的文件数
+	open_file_cache_errors on;  				#搜索文件是否缓存错误信息
+	#-------------proxy  代理-----------------------------------------------------------
+	proxy_ignore_client_abort on; #不允许代理端主动关闭连接
+	proxy_buffers 256 4k;
+    proxy_connect_timeout 300s;
+    proxy_send_timeout 60;
+    proxy_read_timeout 60;
+	proxy_buffer_size 64k;
+	proxy_temp_file_size 64k;
+	
+	proxy_pass http://proxy_server_name;   #设置要代理的域名
+	proxy_set_headder Host $host           # 设置主机头
+	proxy_set_header X-Real-IP $remote_add;# 远程真实的地址
+	upstream set_name{
+		server ip1;
+		server ip2 weight n;}   #n为权重
+	#---------------------防盗链---------------------------------------
+	valid_referers none blocked *.allowdomain.com *.yourdomain;
+	if ($invalid_referer) {
+		return 403
+		}
+	#---------------------location -------------------------------------
+	location uri {
+		root      #指定根目录位置,可放置在http,server,location; URI为目录时, 实际的查找的目录: root/uri
+		alias     #修改URI路径,后面跟/; 只存在location
+		index     #索引文件
+		#----------过期时间设置--------------------
+		expires 1d  #过期时间，h
+		#-----------访问控制-----------------------
+		#依次执行
+		allow ip    #允许的ip,subnet
+		deny  all  
+		#--------------rewrite -------------------------
+		rewrite   url param；
+			#param:
+			#	permanent : 永久重定向，301
+			#	last: 		停止处理重写模块，搜索修改后的URI
+			#	redirect: 	临时重定向，以http：//开头
+			#	break : 	server, location, if  完成当前的重写规则后，停止执行其他重写
+			#	return : 	返回状态码
+			#rewrite最大只可以写10次，超过后返回500错误
+	}
+	#----------------nginx monitor---------------------------
+	location /nginx_status {
+                stub_status on;   #开启监控模块 
+                access_log off;
+                allow 127.0.0.1;
+                deny all;
+                }
+	#-------------------user agent ----------------------------
+	if ($http_user_aget ~ 'curl|baidu') {
+		return 403;
+		}
+	
+ }

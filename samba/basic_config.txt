@@ -1,0 +1,61 @@
+﻿yum install samba samba-client 
+
+配置文件：
+[global]
+        workgroup = WORKGROUP
+        server string = Application-server
+        wide links = yes
+        follow symlinks = yes
+        unix extensions =no
+        log file = /var/log/samba/log.%m
+        max log size = 50
+        security = user
+        passdb backend = tdbsam
+        username map = /etc/samba/smbusers
+        [public]
+			comment = Public Stuff
+			path = /usr/local/src
+			public = yes
+			writable = yes
+			printable = no
+			write list = +staff
+        [django]
+        comment = The Django Web
+			read list=lizhen
+			write list=lizhen,@goupname
+			path = /data/automation
+			create mask= 0775
+			writeable = yes
+			browseable = yes
+			public = no
+
+
+
+测试配置是否正确：
+	testparm /path/to/smb.conf
+	
+yum install cifs-utils   #挂载相关
+客户端访问： 
+	1. smbclient //ip/share -U username%passwd
+	2. mount -t cifs //ip/share /local_dir -o username=username,password=password
+		需要软件包: yum install cifs-utils   #挂载相关
+
+查看当前的samba的所有访问信息
+	命令：smbstatus
+	安装包： samba-common-tools
+	
+
+创建用户：
+	1. 系统用户
+		smbpasswd -a existed_user
+	2. 虚拟用户
+		pdbedit -a smbuser   #smbuser须为系统用户
+		
+		[global]
+		username map = /etc/samba/smbusers 
+		#/etc/samba/smbusers 格式： 
+		#	smbuser = aliasname1,aliasname2,aliasname3
+	
+
+	
+

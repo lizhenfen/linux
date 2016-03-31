@@ -1,0 +1,8 @@
+﻿cisco交换机启用snmp:
+	Switch(config)#snmp-server community public ro  #设置只读字符串,public为团体名称,ro为只读
+	Switch(config)#snmp-server enable traps    #启用snmp陷井,允许路由器将所有类型SNMP Trap发送出去
+	Switch(config)#snmp-server enable traps snmp authentication     #snmp trap 验证
+	Switch(config)#snmp-server host *.*.*.* version 2c public  # SNMP采用版本2，public作为团体名称
+	Switch(config)#snmp-server host *.*.*.* traps public# 指定SNMP Trap的接收者为192.68.98.166，发送Trap时采用public作为团体名称
+	Switch(config)#snmp-server trap-source vlan n #设置vlan n虚接口IP地址做为为snmp trap信息的发布地址
+

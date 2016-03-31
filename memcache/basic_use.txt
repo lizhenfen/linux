@@ -1,0 +1,25 @@
+﻿名词:
+	chunk； 块，最小单位
+	slab:  块集合
+	page: 1M
+	
+过期模型：
+	lazy_Expiration: 本身不监视，而是get时查看时间戳
+	LRU: 优先使用已超时的空间
+目的：
+	数据库缓存,纯内存缓存, 应用服务器之间的session共享
+	通过事先规划好的内存空间，缓存数据库的数据，减少数据库的高并发访问，提升数据库性能
+安装：
+	yum install epel-release libevent memcached libmemcached
+配置文件：
+	/etc/sysconfig/memcached
+	
+连接： 
+	1. telnet 连接
+		set key 0 60 3   #key: 键值， 0 ：flag标记  60:过期时间  3：大小  回车后输入内容
+		命令; set add replace get delete
+		flag: 无符号整形16位
+	2.是memcached-tool
+		memcached-tool ip:port display
+		memcached-tool ip:port stats  #查看状态
+		memstat --servers=ip:port

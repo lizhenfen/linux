@@ -1,0 +1,2 @@
+/sbin/arping -I eht0 -c 3 -s 192.168.1.1 192.168.1.253
+/sbin/arping -U -I eth0 192.168.1.1

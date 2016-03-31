@@ -1,0 +1,34 @@
+安装zabbix的repo：
+	rpm -Uv  http://repo.zabbix.com/zabbix/2.4/rhel/7/x86_64/zabbix-release-2.4-1.el7.noarch.rpm
+安装zabbix server服务：
+	yum install mysql-server zabbix-server-mysql zabbix-web-mysql zabbix-agent zabbix-java-gateway
+配置文件(目录：/etc/zabbix)：
+	服务器目录: /etc/zabbix/zabbix_server.conf
+	外部脚本(external scripts): /usr/lib/zabbix/externalscripts
+	报警脚本(alert scripts): /usr/lib/zabbix/alertscripts
+配置数据库：
+	create database zabbix;
+	grant all on zabbix.* to 'zabbix'@'localhost' identified by 'zabbix';
+	导数据：
+		mysql -uzabbix -pzabbix zabbix < /usr/share/doc/zabbix-server-mysql-2.4.7/create/schema.sql
+		mysql -uzabbix -pzabbix zabbix < /usr/share/doc/zabbix-server-mysql-2.4.7/create/images.sql
+		mysql -uzabbix -pzabbix zabbix < /usr/share/doc/zabbix-server-mysql-2.4.7/create/data.sql
+	主要使用两个数据表存储数据： 
+		History, Trends
+		这两个表的大小的主要影响因素：
+			Items: 使用的items的数量
+			Refresh rate: items的平均刷新速率
+			Space to store value: 存储值得空间
+		类型 保留天数 需要空间
+		history 30 10.8G
+		events 5years 15.7G
+		trends 5years 26.7G 
+		total  NA    53.2G
+登陆web查看：
+	http://url/zabbix
+	默认user:admin 
+		password:zabbix
+配置zabbix-server-proxy:
+	yum install zabbix-proxy-mysql 
+	导入数据
+	mysql -uzabbix -pzabbix zabbix < /usr/share/doc/zabbix-server-mysql-2.4.7/create/schema.sql

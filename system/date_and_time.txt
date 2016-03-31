@@ -1,0 +1,11 @@
+cal    #查看日历	
+	-y #查看今年
+date:  #日期
+	-s "yyyy-mm-dd hh:mm:ss"  #设置时间
+	+%F: 查看日期
+	+%T: 查看时间
+	+%y %m %d %H %M %S
+	+%w: 周
+	+%W: 今年的多少周
+	+%s: 距离元年多少秒
+	-d "-1 days"  #查看指定的时间或日期month,hour,min,sec,

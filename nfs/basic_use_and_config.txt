@@ -1,0 +1,17 @@
+软件安装:
+	yum install nfs-utils rpcbind -y
+
+nfs的配置文件：/etc/exports
+语法：
+	共享的目录 IP客户端(权限)
+       /mnt        192.168.11.0/24(rw,sync,all_squash,anonuid=501,anongid=501)
+
+启动：
+	/etc/init.d/rpcbind start
+	/etc/init.d/nfs start
+	
+exportfs -avr   #使更改生效
+
+客户端：	
+	showmount -e nfs-server-ip 
+	mount -t nfs -onolock,nfsvers=3 nfs-server-ip:/mnt /local_dir

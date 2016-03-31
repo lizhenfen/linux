@@ -1,0 +1,9 @@
+用法：
+	curl [option] http://server
+	option:
+		-e： 设置referer
+			-e "http://www.baidu.com/111"
+		-I: 只显示header
+		-x: 指定代理地址
+			-x127.0.0.1:80
+		-A: 指定user-agent
