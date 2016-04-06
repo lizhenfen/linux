@@ -1,4 +1,5 @@
 #!/bin/bash
+# can add shift to parse more params
 
 var=$1
 
@@ -22,4 +23,5 @@ elif [ "$var" == "status" ];then
 else
   param
 fi
+
 
