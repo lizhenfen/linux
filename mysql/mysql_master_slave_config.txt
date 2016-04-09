@@ -1,0 +1,47 @@
+﻿要求：
+	1. 一主多从
+	2. slave只能挂载到一个master
+	3. 所有的slave及master中必须指定不同的server-id
+	
+同步结构：
+	1.I/O线程和SQL线程
+		I/O线程: 从master服务器拉取数据到中继日志
+		SQL线程: 从中继日志读取并执行查询
+		优点： 降低同步的延迟
+	2.二进制日志和中继日志
+		相同： 只记录修改数据语句,不记录查询语句
+		中继日志会被SQL线程自动删除
+		二进制日志查看： mysqlbinlog
+		支持的二进制的：rows，statement，mixed
+
+	3.位置信息
+		主机名,日志文件名,日志文件中处理的信息称为位置
+		保存的地址； master.info 查看方式： show slave status
+my.cnf:
+	[mysqld]
+	server-id = 1       #不同的服务必须设置不同
+	log-bin=mysql-bin   #指定二进制日志文件名
+	log-bin-index = mysql-bin  #二进制日志文件的索引
+	relay-log = relay-bin # 中继日志的文件名
+	relay-log-index = relay-bin #中继日志的文件的索引
+	log-slave-updates   #slave日志的二进制日志输出,确保slave可以升级为master
+创建主从复制用户：
+	GRANT REPLICATION SLAVE on *.* to 'slave'@'192.168.1.0/255.255.255.0' IDENTIFIED BY 'slave-pass';
+创建初始数据：
+	1. 最好的办法就是停库, 打包拷贝过去
+	2. 不能停库时,要停止写入
+启动slave:
+	注意： 确认slave的my.cnf中 server-id 和 master的server-id 不相同
+	启动mysqld后：
+		CHANGE MASTER TO MASTER_HOST='master_ip',MASTER_USER='slave',MASTER_PASSWORD="slave-pass",MASTER_LOG_FILE='mysql-bin.00000n',MASTER_LOG_POS=4;
+		slave start;
+		提示： MASTER_LOG_FILE,MASTER_LOG_POS 通过 show master status; 确认 
+	修改master后：
+		查看slave是否正确启动： show slave status; 
+	查看master存在几个 log-bin日志文件： show master logs;
+	删除mster二进制日志文件:
+		由于二进制日志文件不停增加,因此需要定期清理，步骤：
+			1. show slave status ; #查看slave同步完成的文件
+			2。 purge master logs to 'mysql-bin.000003'; #删除比此二进制文件更早的文件
+		使用reset master 也可以删除，但会造成同步终止
+		
