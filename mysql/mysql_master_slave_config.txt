@@ -21,6 +21,8 @@ my.cnf:
 	[mysqld]
 	server-id = 1       #不同的服务必须设置不同
 	log-bin=mysql-bin   #指定二进制日志文件名
+        binlog-do-db=       #指定同步的数据库
+        binlog-ignore-db=   #忽略要同步的数据库
 	log-bin-index = mysql-bin  #二进制日志文件的索引
 	relay-log = relay-bin # 中继日志的文件名
 	relay-log-index = relay-bin #中继日志的文件的索引
@@ -29,7 +31,10 @@ my.cnf:
 	GRANT REPLICATION SLAVE on *.* to 'slave'@'192.168.1.0/255.255.255.0' IDENTIFIED BY 'slave-pass';
 创建初始数据：
 	1. 最好的办法就是停库, 打包拷贝过去
-	2. 不能停库时,要停止写入
+	2. 不能停库时,要停止写入(影响业务)
+            锁库:flash tables with read lock; 
+            超时: interactive_time, wait_timeout
+            解锁:unlock tables;
 启动slave:
 	注意： 确认slave的my.cnf中 server-id 和 master的server-id 不相同
 	启动mysqld后：

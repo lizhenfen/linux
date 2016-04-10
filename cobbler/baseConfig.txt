@@ -50,4 +50,5 @@
 	3. 查看cobbler已存在的profile:
 		cobbler profile list
 
-
+        4. 增加指定的系统主机
+                cobbler system add --name=WebCache-3.167 --mac=00:24:E8:64:24:59 --ip-address=192.168.3.167 --subnet=255.255.255.0 --gateway=192.168.3.1 --interface=eth0 --static=1 --profile=centos6.3-x86_64 --dns-name=ywtest-3-167.test.com --hostname=ywtest-3-167.test.com --netboot-enabled=true --name-servers="192.168.3.1 202.106.196.115"
