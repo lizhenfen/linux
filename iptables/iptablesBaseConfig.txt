@@ -40,6 +40,8 @@ iptables需要用到的模块：
 	#上网
 		iptables -t nat -A POSTROUTING -s 192.168.27.0/24 -o eth1 -j SNAT --to-source 202.106.0.20
 	#映射端口
+                #host must be accepted the port                
+                iptables -A INPUT -p tcp --dport 80 -j ACCEPT
 		iptables -t nat -A PREROUTING -d 202.106.0.20 -p tcp --dport 80 -j DNAT --to-destination 192.168.27.20:8000
 	# 跟踪信息
 	设置：

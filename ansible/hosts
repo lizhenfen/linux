@@ -1,0 +1,11 @@
+db-[99:101]-node.example.com  #可以使用统配符
+[locals]
+localhost ansible_connection=local  #指定连接协议,不是ssh
+127.0.0.1
+[application]
+application0 ansible_connection=ssh ansible_ssh_user=lizhen
+#ansible_ssh_port ansible_ssh_host
+[web]
+nginx-1 ansible_host=192.168.56.212 ansible_ssh_user=root ansible_ssh_pass=rootad
+nginx-2 ansible_host=192.168.56.213 ansible_ssh_user=root ansible_ssh_pass=rootad
+

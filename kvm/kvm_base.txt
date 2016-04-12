@@ -1,0 +1,7 @@
+安装:
+    yum install qemu qemu-tool virt-* libvirt -y
+    #qemu qemu-tool: 虚拟外设
+    #virt-* :  管理,用于系统安装
+    #libvirt:  api接口, 通用的接口
+    #可选包： tigervnc  命令： vnviewer
+    #可选包： bridge-utils

@@ -1,0 +1,21 @@
+#tomcat 使用2种协议连接: http 和 ajp
+使用其中一种协议时，最好关闭另外的协议
+
+#Server
+tomcat远程管理,可以直接关闭等 , 最好关掉
+
+默认的manager,host-manager 取消掉； 或者直接修改根目录
+
+内部调优:
+  禁用DNS
+  调整线程
+  压缩
+调整线程参数:
+  位置: Connector
+  maxThreads   #默认150
+  minSpareThreads
+  maxSpareThreads
+  acceptCount #默认100，可以看出是等待队列
+
+
+

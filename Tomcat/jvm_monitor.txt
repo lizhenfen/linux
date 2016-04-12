@@ -1,0 +1,12 @@
+jconsole  监控
+jmap      查看内存  #可以通过MAT,jhat 进行图形化处理
+
+
+实例：
+  查看损耗内存的进程的流程
+     jps #查看启用的进程
+        jps -lvm  #查看当前启用的进程及详细信息
+     jstack pid > log_stack.txt  #查看堆的详细,可导入文件等待后续分析
+     top -H -p pid #查看对应进程的线程
+     echo "obase=16; pid" | bc #计算线程程的16进制,
+     grep pid(16进制的) log_stack.txt  #

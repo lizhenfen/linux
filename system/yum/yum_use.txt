@@ -1,0 +1,3 @@
+yum list installed #查看所有已安装的包
+yum info installed #查看所有已安装包的详细信息
+yum provides command #查看命令属于哪个包
