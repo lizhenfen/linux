@@ -1,3 +1,22 @@
+#解释
+keepalived:
+	1. lvs健康检查, 负载均衡
+	2. vrrp失败接管，高可用
+		1. 虚拟路由冗余, 使用心跳检测,采用竞选机制
+		2. 只有master工作, 发包检查, 其他均为BACKUP
+		3. 对外有相同的MAC和IP
+		4. 通过优先级竞选
+		5. 使用加密协议
+		6. VRRP通过多播相互通信(224.0.0.18),也可以设置单播
+		7. 最多支持20个实例
+#修改日志文件
+指定日志文件：
+	默认日志文件： /var/log/message
+	1. 修改/etc/sysconfig/keepalived
+		keepalived_options ="-D -d -S n"  #指定日志级别
+	2. 在/etc/keepalived/keepalived.conf 中增加 local0.* 
+
+#配置样例
 global_defs {
    notification_email {
      root@linux.tang.chao               #设置报警邮件地址，可以设置多个，每行一个。
@@ -13,6 +32,7 @@ vrrp_instance VI_1 {
     state MASTER              #指定keepalived的角色，MASTER表示此主机是主服务器，BACKUP表示此主机是备用服务器
     interface eth0            #指定HA监测网络的接口
     virtual_router_id 51      #虚拟路由标识，这个标识是一个数字，同一个vrrp实例使用唯一的标识。即同一vrrp_instance下，MASTER和BACKUP必须是一致的
+    nopreempt                 #设置不允许抢占
     priority 100              #定义优先级，数字越大，优先级越高，在同一个vrrp_instance下，MASTER的优先级必须大于BACKUP的优先级
     advert_int 1              #设定MASTER与BACKUP负载均衡器之间同步检查的时间间隔，单位是秒
     authentication {          #设置验证类型和密码

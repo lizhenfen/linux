@@ -1,3 +1,12 @@
+名词解释：
+	WEB-INF: 私有信息，无法通过WEB查看
+	META-INF: 私有信息，无法通过WEB查看
+文件说明：
+	tomcat-user.xml: 用户认证文件
+	web.xml: 应用程序部署描述符文件
+	server.xml: 核心配置文件
+	catalina.xml: 应用程序
+	tomcat: 应用程序名称
 Java环境(jdk)：
   环境变量：
      第一种:
@@ -21,9 +30,16 @@ Java环境(jdk)：
      catalina.sh stop
      catalish.sh version
 #以上环境变量也可以写入文件,放置/etc/profile.d/ 目录下开机启动
+部署方式：
+	1. tomcat(不建议)
+	2. apache + tomcat	
+		1. 使用http协议, 灵活
+		2. 使用ajp协议,更快(mod_jdk,mod_proxy)
+	3. nginx + tomcat
+		1. 使用http协议
 #默认文档路径：
-   appBase #指定
-#设置文档路径:
-    <Context path="" docBase='' debug="0" reloadable="false" crossContext="true">
+   appBase #默认指定
+	#设置文档路径:
+		<Context path="" docBase='' debug="0" reloadable="false" crossContext="true">
 
 

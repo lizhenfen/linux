@@ -1,0 +1,62 @@
+类型：
+  名词：
+	LB: load balance 负载均衡调度器
+	CIP: 客户端ip地址
+	VIP: 虚拟地址
+	RS: real server
+	调度策略(10)： rr|wrr|lc|wlc|lblc|lblcr|dh|sh|sed|nq
+	------
+	NAT：
+		1. 请求的报文(通过DNAT) 和 返回的报文(通过SNAT) , 在LB上重写转发
+		2. LB上既有公网IP，也有私网IP
+		3. RS的网关是LB的私网IP
+		4. 网络流量大的时候, LB的压力大
+		5. 支持端口和IP转换
+		6. RS不要公网IP
+		7. LB上开启ip_forward
+	DR:
+		1. 在LB上修改MAC地址, CIP和VIP不变
+		2. 请求的报文通过 LB调度器，返回的报文不需要通过LB,并发量大
+		3. DR通过MAC的改写机制, 因此所有的RS 和 LB必须在同一个局域网内
+		4. RS 需要绑定VIP(loop网卡) , 抑制 ARP
+		5. DR修改了MAC地址，无法改变请求报文的目的端口
+		6. LB仅支持linux, RS支持windows，linux
+		7. 对外的服务(RS)最好使用公网IP, 
+		8. 并发10000以下，或 日2000WPV 建议使用
+	TUN:
+		1. 在包的外部封装IP(public,private)
+命令：
+	ipvsadm
+		--help: 查看帮助
+		-Ln: 查看配置
+		-Lnc: 查看连接数
+		--set: 设置超时
+		-Ln --stats: 显示详细配置
+		-C: 清空配置, 一般不用
+		-D: 删除vip配置
+		-d: 删除rip
+			-d -t vip:port -r rip 
+		-A -t vip:port -s rr -p n  
+		  #-p: 会话保持，不推荐,产生会话不均
+		  -a -t vip:port -r rip -g| -i| -m -w n 
+			#-w: 设置权重
+
+配置：
+	DR:
+		RS:
+			1. 配置VIP:
+				ip addr add vip dev lo:1 
+			2. 抑制arp地址
+				echo 1 > /proc/sys/net/ipv4/conf/all/arp_ignore
+				echo 2 > /proc/sys/net/ipv4/conf/all/arp_nnounce
+				echo 1 > /proc/sys/net/ipv4/conf/nic/arp_ignore
+				echo 2 > /proc/sys/net/ipv4/conf/nic/arp_ignore
+				route add $vip dev lo:1
+负载不均问题：
+	1. 会话不均(session,cookie)， lvs设置会话保持
+	2. 算法设置
+	3. 访问量少
+排除错误：
+	cs --> vs
+	vs --> rs 
+	cs --> rs
