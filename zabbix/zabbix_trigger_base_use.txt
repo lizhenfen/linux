@@ -1,0 +1,9 @@
+文档参考：http://www.360doc.com/content/14/0401/17/8085797_365507708.shtml
+	1. 内存持续5min内大于 某个数 报警
+		通过设置触发器实现： {server:vm.memory.size[total].last(5m)}>n  #n为指定的触发值, 总的内存最后5分持续大于某个数
+		server: 服务器名称
+		vm.memory.size[total]： item值
+		last(5m)： 
+			last: 函数
+			5m:   函数的参数
+		n:      值
