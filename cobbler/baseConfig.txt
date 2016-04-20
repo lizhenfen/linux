@@ -11,6 +11,7 @@
 修改配置：
 	默认文件路径:/etc/cobbler/settings: 
 	#--------------------------------------
+        default_password_crypted: #此处设置管理密码
 	#配置是否由cobbler集成管理
 	#0: 自主管理服务
     #1: cobbler管理的服务
