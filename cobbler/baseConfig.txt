@@ -2,8 +2,8 @@
 	KS文件： http://www.osyunwei.com/archives/7577.html
 	安装：http://www.linuxidc.com/Linux/2015-09/122945.htm
 	原理：http://www.361way.com/cobbler-principle/4328.html
-安装软件：
-	yum install epel dhcp tftp rysnc xinetd httpd -y
+装软件：
+	yum install epel-release dhcp tftp-server rysnc xinetd httpd -y
 	yum install cobbler -y
 关闭selinux:
 	seenforce 0 
@@ -19,6 +19,13 @@
 		manage_tftpd: 0
 		manage_rsync: 0
 	#--------------------------------------
+DHCP配置文件:
+    #子网中增加以下配置
+    next-server tftp-server-ip;   #指向tftp-server的ip
+    filename    "/pxelinux.0";    #指定文件
+TFTP配置：
+   #/etc/xinet.d/tftp
+   disable = yes 修改 disable = no  
 启动服务：
 	systemctl start dhcpd  67/udp
 	systemctl start tftpd  69/udp 
