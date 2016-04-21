@@ -3,7 +3,7 @@
 	安装：http://www.linuxidc.com/Linux/2015-09/122945.htm
 	原理：http://www.361way.com/cobbler-principle/4328.html
 装软件：
-	yum install epel-release dhcp tftp-server rysnc xinetd httpd -y
+	yum install epel-release dhcp tftp-server rsync xinetd httpd -y
 	yum install cobbler -y
 关闭selinux:
 	seenforce 0 
@@ -13,8 +13,8 @@
 	#--------------------------------------
         default_password_crypted: #此处设置管理密码
 	#配置是否由cobbler集成管理
-	#0: 自主管理服务
-    #1: cobbler管理的服务
+        #0: 自主管理服务
+        #1: cobbler管理的服务
 		manage_dhcp: 0
 		manage_dns: 0
 		manage_tftpd: 0
@@ -33,10 +33,11 @@ TFTP配置：
 	systemctl start rsyncd
 	systemctl start httpd 
 	systemctl start cobblerd
-	注意：首次启动服务一般会报错,运行以下命令,参照提示解决
+        启动服务后，运行以下命令：
 		cobbler check
+                #根据提示信息,依次解决
 		systemctl restart cobblerd #错误处理完成后，重启服务
-		cobbler sync    #同步
+		cobbler sync    #同步数据
 创建应答文件ks.cfg:
 	1. 手动设置
 		软件包: yum install -y system-config-kickstart
@@ -46,17 +47,19 @@ TFTP配置：
 	    生成配置用户登录密码：openssl passwd -1 -salt root
 	3. 验证ks.cfg文件
 		ksvalidator ks.cfg
+                #注意：ks文件中的启动路径：url --url=http://192.168.159.13/cobbler/ks_mirror/centos-7-1/  
+                # centos-7-1 目录 是执行cobbler import --name='centos-7-1' --path=/mnt/ 后生成的
 	4. 复制配置文件到cobbller的ks目录
 		cp ks.cfg /var/lib/cobbler/kickstarts/
-	5. 导入ks.cfg文件
-		cobbler profile add --name='centos-7-base' --distro='centos-7-x86_64' --kickstart=/var/lib/cobbler/kickstarts/ks.cfg
 导入系统镜像：
 	1. 挂载镜像文件 
 		mount /dev/cdrom /mnt/centos-7 
 	2. 导入系统镜像到cobbler： 	
 		cobbler import --name='centos-7-base' --path=/mnt/centos-7   #--name 指定的文件和导入ks.cfg文件时--name指定的名称一样
-	3. 查看cobbler已存在的profile:
+	3. 导入ks.cfg文件
+		cobbler profile add --name='centos-7-base' --distro='centos-7-x86_64' --kickstart=/var/lib/cobbler/kickstarts/ks.cfg
+	4. 查看cobbler已存在的profile:
 		cobbler profile list
 
-        4. 增加指定的系统主机
+        5. 增加指定的系统主机
                 cobbler system add --name=WebCache-3.167 --mac=00:24:E8:64:24:59 --ip-address=192.168.3.167 --subnet=255.255.255.0 --gateway=192.168.3.1 --interface=eth0 --static=1 --profile=centos6.3-x86_64 --dns-name=ywtest-3-167.test.com --hostname=ywtest-3-167.test.com --netboot-enabled=true --name-servers="192.168.3.1 202.106.196.115"
