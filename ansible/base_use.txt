@@ -1,16 +1,18 @@
 模块：
+        script
 	command
 	shell
 	copy
 	cron  name job weekday minute daty hour month state=absent
 	yum name
-	service name state enabled
-	setup  #收集信息
+	service #参数:name state enabled
+	setup  #收集系统信息
 帮助：
   ansible-doc -l  #显示所有的模块
   ansible-doc module  #查看模块的详细文档
 
 实例：
+ansible all -m ping   #测试用例
 ansible web -m yum -a "name=nginx state=latest "
 ansible web -m yum -a "name=epel-releasd state=latest "
 ansible web -m yum -a "name=* state=latest "  #更新 yum update
