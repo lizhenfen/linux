@@ -1,1 +1,1 @@
-Don't talk to me, give me the code.
+Don't talk to me, just look at the code.
