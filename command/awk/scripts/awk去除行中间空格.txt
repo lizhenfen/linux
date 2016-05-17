@@ -8,3 +8,7 @@
    只保留每行的最后2列的空格, 其他数据的空格去除掉 
 命令：
     awk  'BEGIN{FS="|";a=NF}{for(i=1;i<=NF;i++){if(i<NF-2){gsub(" ","",$i)};if(i==NF){printf $i"\n"}else{printf $i"|"}}}' a.txt
+
+拓展:
+    去除全部的空格
+    cat a.txt | tr -d " "
