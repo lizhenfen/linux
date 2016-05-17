@@ -2,6 +2,8 @@
 	KS文件： http://www.osyunwei.com/archives/7577.html
 	安装：http://www.linuxidc.com/Linux/2015-09/122945.htm
 	原理：http://www.361way.com/cobbler-principle/4328.html
+环境:
+	centos 7 64-bit
 装软件：
 	yum install epel-release dhcp tftp-server rsync xinetd httpd -y
 	yum install cobbler -y
@@ -29,7 +31,7 @@ TFTP配置：
    disable = yes 修改 disable = no  
 启动服务：
 	systemctl start dhcpd  67/udp
-	systemctl start tftpd  69/udp 
+	systemctl start tftp  69/udp 
 	systemctl start rsyncd
 	systemctl start httpd 
 	systemctl start cobblerd

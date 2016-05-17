@@ -1,0 +1,73 @@
+安装:
+    yum install subversion
+启动：
+    1. 创建总目录
+        1. 创建数据目录  #mkdir -p /data/application/svn/svndata
+        2. 创建密码目录  #mkdir -p /data/application/svn/svnpass
+    2. 启动服务(svnserve)
+        svnserve -d -r /data/application/svn/svndata
+        验证：
+            1. 查看进程  #ps aux | grep svnserve
+            2. 查看端口  #lsof -i:3690
+    3. 创建项目(svnadmin)
+        svnadmin create /data/application/svn/svndata/svndoc
+        当前目录： /data/application/svn/svndata/svndoc
+        [root@application-server svndoc]# tree .
+        .
+        ├── conf                    --配置文件目录
+        │   ├── authz               --授权文件
+        │   ├── passwd              --用户,密码文件
+        │   └── svnserve.conf       --项目配置文件
+        ├── db
+        │   ├── current
+        │   ├── format
+        │   ├── fsfs.conf           --缓存系统设置
+        │   ├── fs-type             --当前文件系统类型
+        │   ├── min-unpacked-rev
+        │   ├── revprops
+        │   │   └── 0
+        │   │       └── 0
+        │   ├── revs
+        │   │   └── 0
+        │   │       └── 0
+        │   ├── transactions
+        │   ├── txn-current
+        │   ├── txn-current-lock
+        │   ├── txn-protorevs
+        │   ├── uuid
+        │   └── write-lock
+        ├── format
+        ├── hooks                   --钩子函数,svn上传之后的操作
+        │   ├── post-commit.tmpl
+        │   ├── post-lock.tmpl
+        │   ├── post-revprop-change.tmpl
+        │   ├── post-unlock.tmpl
+        │   ├── pre-commit.tmpl
+        │   ├── pre-lock.tmpl
+        │   ├── pre-revprop-change.tmpl
+        │   ├── pre-unlock.tmpl
+        │   └── start-commit.tmpl
+        ├── locks                   --1.3之后不再使用
+        │   ├── db.lock
+        │   └── db-logs.lock
+        └── README.txt
+    4. 修改配置文件
+        1. 配置服务
+            [general]
+            anon-access = none   #匿名用户没有权限
+            auth-access = write  #授权用户读写权限
+            password-db = /data/application/svn/svn/passwd   #统一密码文件
+            authz-db = /data/application/svn/svn/authz       #统一授权文件
+            [sasl]               #使用ldap认证
+        2. 拷贝 认证 和 授权 文件到统一目录下
+            cp conf/{authz,passwd} /data/application/svn/svnpass/
+        3. 修改用户和密码(passwd)
+            [users]
+            username = password 
+            权限： chmod 600 passwd 
+        4. 修改授权文件(authz)
+            [groups]  #增加分组
+            group_name = username1,username2
+            [sadoc:/]  #项目 和 顶级目录
+            username = privilege (rw)   #用户名 = 权限
+            @groupname = privilege (rw) #@组名 = 权限

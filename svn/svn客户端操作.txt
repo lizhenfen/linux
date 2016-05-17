@@ -1,0 +1,12 @@
+命令: 
+    svn -h #查看帮助
+    checkout (co)  --检出文件
+    add            --增加文件
+    commit (ci)    --提交文件
+   
+    格式：
+      检出： svn co svn:remote/dir   localdir  
+        svn co svn://192.168.27.253/svndoc/  . --username=admin --password=admin
+      提交：
+        svn add *
+        svn ci -m "tags"
