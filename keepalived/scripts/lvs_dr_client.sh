@@ -1,5 +1,5 @@
 #!/bin/bash
-#keepalived 服务器上暂时不支持
+#keepalived主机 暂时不支持此脚本
 . /etc/init.d/functions
 
 VIP="192.168.56.11"
