@@ -1,4 +1,5 @@
 #!/bin/bash
+#keepalived 服务器上暂时不支持
 . /etc/init.d/functions
 
 VIP="192.168.56.11"
