@@ -1,0 +1,6 @@
+实例:
+1.
+  [root@localhost ~]# curl http://192.168.56.213
+  curl: (7) Failed connect to 192.168.56.213:80; No route to host
+  其他: 可以ping通主机
+  原因: iptables 防火墙
