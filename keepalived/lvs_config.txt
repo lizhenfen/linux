@@ -1,62 +1,66 @@
-ÀàĞÍ£º
-  Ãû´Ê£º
-	LB: load balance ¸ºÔØ¾ùºâµ÷¶ÈÆ÷
-	CIP: ¿Í»§¶ËipµØÖ·
-	VIP: ĞéÄâµØÖ·
+ç±»å‹ï¼š
+  åè¯ï¼š
+	LB: load balance è´Ÿè½½å‡è¡¡è°ƒåº¦å™¨
+	CIP: å®¢æˆ·ç«¯ipåœ°å€
+	VIP: è™šæ‹Ÿåœ°å€
 	RS: real server
-	µ÷¶È²ßÂÔ(10)£º rr|wrr|lc|wlc|lblc|lblcr|dh|sh|sed|nq
+	è°ƒåº¦ç­–ç•¥(10)ï¼š rr|wrr|lc|wlc|lblc|lblcr|dh|sh|sed|nq
 	------
-	NAT£º
-		1. ÇëÇóµÄ±¨ÎÄ(Í¨¹ıDNAT) ºÍ ·µ»ØµÄ±¨ÎÄ(Í¨¹ıSNAT) , ÔÚLBÉÏÖØĞ´×ª·¢
-		2. LBÉÏ¼ÈÓĞ¹«ÍøIP£¬Ò²ÓĞË½ÍøIP
-		3. RSµÄÍø¹ØÊÇLBµÄË½ÍøIP
-		4. ÍøÂçÁ÷Á¿´óµÄÊ±ºò, LBµÄÑ¹Á¦´ó
-		5. Ö§³Ö¶Ë¿ÚºÍIP×ª»»
-		6. RS²»Òª¹«ÍøIP
-		7. LBÉÏ¿ªÆôip_forward
+	NATï¼š
+		1. è¯·æ±‚çš„æŠ¥æ–‡(é€šè¿‡DNAT) å’Œ è¿”å›çš„æŠ¥æ–‡(é€šè¿‡SNAT) , åœ¨LBä¸Šé‡å†™è½¬å‘
+		2. LBä¸Šæ—¢æœ‰å…¬ç½‘IPï¼Œä¹Ÿæœ‰ç§ç½‘IP
+		3. RSçš„ç½‘å…³æ˜¯LBçš„ç§ç½‘IP
+		4. ç½‘ç»œæµé‡å¤§çš„æ—¶å€™, LBçš„å‹åŠ›å¤§
+		5. æ”¯æŒç«¯å£å’ŒIPè½¬æ¢
+		6. RSä¸è¦å…¬ç½‘IP
+		7. LBä¸Šå¼€å¯ip_forward
 	DR:
-		1. ÔÚLBÉÏĞŞ¸ÄMACµØÖ·, CIPºÍVIP²»±ä
-		2. ÇëÇóµÄ±¨ÎÄÍ¨¹ı LBµ÷¶ÈÆ÷£¬·µ»ØµÄ±¨ÎÄ²»ĞèÒªÍ¨¹ıLB,²¢·¢Á¿´ó
-		3. DRÍ¨¹ıMACµÄ¸ÄĞ´»úÖÆ, Òò´ËËùÓĞµÄRS ºÍ LB±ØĞëÔÚÍ¬Ò»¸ö¾ÖÓòÍøÄÚ
-		4. RS ĞèÒª°ó¶¨VIP(loopÍø¿¨) , ÒÖÖÆ ARP
-		5. DRĞŞ¸ÄÁËMACµØÖ·£¬ÎŞ·¨¸Ä±äÇëÇó±¨ÎÄµÄÄ¿µÄ¶Ë¿Ú
-		6. LB½öÖ§³Ölinux, RSÖ§³Öwindows£¬linux
-		7. ¶ÔÍâµÄ·şÎñ(RS)×îºÃÊ¹ÓÃ¹«ÍøIP, 
-		8. ²¢·¢10000ÒÔÏÂ£¬»ò ÈÕ2000WPV ½¨ÒéÊ¹ÓÃ
+		1. åœ¨LBä¸Šä¿®æ”¹MACåœ°å€, CIPå’ŒVIPä¸å˜
+		2. è¯·æ±‚çš„æŠ¥æ–‡é€šè¿‡ LBè°ƒåº¦å™¨ï¼Œè¿”å›çš„æŠ¥æ–‡ä¸éœ€è¦é€šè¿‡LB,å¹¶å‘é‡å¤§
+		3. DRé€šè¿‡MACçš„æ”¹å†™æœºåˆ¶, å› æ­¤æ‰€æœ‰çš„RS å’Œ LBå¿…é¡»åœ¨åŒä¸€ä¸ªå±€åŸŸç½‘å†…
+		4. RS éœ€è¦ç»‘å®šVIP(loopç½‘å¡) , æŠ‘åˆ¶ ARP
+		5. DRä¿®æ”¹äº†MACåœ°å€ï¼Œæ— æ³•æ”¹å˜è¯·æ±‚æŠ¥æ–‡çš„ç›®çš„ç«¯å£
+		6. LBä»…æ”¯æŒlinux, RSæ”¯æŒwindowsï¼Œlinux
+		7. å¯¹å¤–çš„æœåŠ¡(RS)æœ€å¥½ä½¿ç”¨å…¬ç½‘IP, 
+		8. å¹¶å‘10000ä»¥ä¸‹ï¼Œæˆ– æ—¥2000WPV å»ºè®®ä½¿ç”¨
 	TUN:
-		1. ÔÚ°üµÄÍâ²¿·â×°IP(public,private)
-ÃüÁî£º
+		1. åœ¨åŒ…çš„å¤–éƒ¨å°è£…IP(public,private)
+å‘½ä»¤ï¼š
 	ipvsadm
-		--help: ²é¿´°ïÖú
-		-Ln: ²é¿´ÅäÖÃ
-		-Lnc: ²é¿´Á¬½ÓÊı
-		--set: ÉèÖÃ³¬Ê±
-		-Ln --stats: ÏÔÊ¾ÏêÏ¸ÅäÖÃ
-		-C: Çå¿ÕÅäÖÃ, Ò»°ã²»ÓÃ
-		-D: É¾³ıvipÅäÖÃ
-		-d: É¾³ırip
+		--help: æŸ¥çœ‹å¸®åŠ©
+		-Ln: æŸ¥çœ‹é…ç½®
+		-Lnc: æŸ¥çœ‹è¿æ¥æ•°
+		--set: è®¾ç½®è¶…æ—¶
+		-Ln --stats: æ˜¾ç¤ºè¯¦ç»†é…ç½®
+		-C: æ¸…ç©ºé…ç½®, ä¸€èˆ¬ä¸ç”¨
+		-D: åˆ é™¤vipé…ç½®
+		-d: åˆ é™¤rip
 			-d -t vip:port -r rip 
 		-A -t vip:port -s rr -p n  
-		  #-p: »á»°±£³Ö£¬²»ÍÆ¼ö,²úÉú»á»°²»¾ù
+		  #-p: ä¼šè¯ä¿æŒï¼Œä¸æ¨è,äº§ç”Ÿä¼šè¯ä¸å‡
 		  -a -t vip:port -r rip -g| -i| -m -w n 
-			#-w: ÉèÖÃÈ¨ÖØ
+			#-w: è®¾ç½®æƒé‡
+        å®ä¾‹ï¼š
+            ipvs# ipvsadm -A -t virtual.service:http -s wrr
+            ipvs# ipvsadm -a -t virtual.service:http -r realserver1:http -w 100
+            ipvs# ipvsadm -a -t virtual.service:http -r realserver2:http -w 1000
 
-ÅäÖÃ£º
+é…ç½®ï¼š
 	DR:
 		RS:
-			1. ÅäÖÃVIP:
+			1. é…ç½®VIP:
 				ip addr add vip dev lo:1 
-			2. ÒÖÖÆarpµØÖ·
+			2. æŠ‘åˆ¶arpåœ°å€
 				echo 1 > /proc/sys/net/ipv4/conf/all/arp_ignore
 				echo 2 > /proc/sys/net/ipv4/conf/all/arp_nnounce
 				echo 1 > /proc/sys/net/ipv4/conf/nic/arp_ignore
 				echo 2 > /proc/sys/net/ipv4/conf/nic/arp_ignore
 				route add $vip dev lo:1
-¸ºÔØ²»¾ùÎÊÌâ£º
-	1. »á»°²»¾ù(session,cookie)£¬ lvsÉèÖÃ»á»°±£³Ö
-	2. Ëã·¨ÉèÖÃ
-	3. ·ÃÎÊÁ¿ÉÙ
-ÅÅ³ı´íÎó£º
+è´Ÿè½½ä¸å‡é—®é¢˜ï¼š
+	1. ä¼šè¯ä¸å‡(session,cookie)ï¼Œ lvsè®¾ç½®ä¼šè¯ä¿æŒ
+	2. ç®—æ³•è®¾ç½®
+	3. è®¿é—®é‡å°‘
+æ’é™¤é”™è¯¯ï¼š
 	cs --> vs
 	vs --> rs 
 	cs --> rs
