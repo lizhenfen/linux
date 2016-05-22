@@ -1,0 +1,95 @@
+下载地址：https://www.percona.com/downloads/XtraBackup/
+文档地址：https://www.percona.com/doc/percona-xtrabackup/2.2/index.html
+安装：
+    安装yum源(percona)：
+    yum install http://www.percona.com/downloads/percona-release/redhat/0.1-3/percona-release-0.1-3.noarch.rpm
+命令：
+    innobackupex: 只支持innodb
+    xtrabackup: 支持热备
+         xtrabackup --user=DVADER --password=14MY0URF4TH3R --backup --target-dir=/data/bkps
+备份用户权限:
+    RELOAD   和 LOCK TABLES  除非 --no-lock
+    REPLICATION 
+    CREATE TABLESPACE
+    PROCESS\SUPER\SELECT\INSERT\CREATE
+    最小权限:
+        mysql> CREATE USER 'bkpuser'@'localhost' IDENTIFIED BY 's3cret';
+        mysql> GRANT RELOAD, LOCK TABLES, REPLICATION CLIENT ON *.* TO 'bkpuser'@'localhost';
+        mysql> FLUSH PRIVILEGES;
+参数：
+    --user=root  #指定数据库的用户名
+    --password=root_passwd   #指定用户的密码
+    --defaults-file=/etc/my.cnf   #指定数据库的配置文件,多实例时使用
+    --host
+    --port
+    --sock=         #指定sock文件，备份进程登录mysql
+    --databases=	#指定备份的数据库的名称
+    --tmpdir=  		#事务日志临时存储的目录
+    --no-timestamp  #备份文件去掉 时间戳
+    --slave-info #备份从库的信息，多生成一个xtrabackup_slave_info 文件，保存主日志文件以及偏移
+    --stream=tar    #指定流的格式，暂时只支持tar
+    --redo-only	    #强制备份日志时只redo,跳过rollback,在增量备份有必要
+    --incremental	#指明为增量备份
+    --force-non-empty-directories #恢复数据时，mysqldatadir不为空时,使用此项,测试未通过
+    --incremental-basedir=/last-backup-dir/      #指定上次完整备份的路径或者增量备份的路径，只针对Innodb,对MyISAM来说是完整备份
+实例：
+    完整备份并打包：
+        innobackupex --user=DBUSER --password=DBUSERPASS /path/to/BACKUP-DIR/
+        预恢复：
+            innobackupex --apply-log /path/to/BACKUP-DIR
+         --use-memory=4G  #指定内存，越多越好，默认100M
+         #可加速正式恢复数据时的速度
+    备份到远程主机(并不推荐)：
+        innobackupex --user=root --password=openstack --defaults-file=/etc/my.cnf /backup-dir/ | ssh root@remoteip cat ">" /backup-dir/mysql-back2015.tar
+    增量备份：
+        1. 创建完整的备份
+            innobackupex /data/backups
+        2. 在完整备份的基础上增量
+            1. 基于备份目录增加
+                innobackupex --incremental /data/backups --incremental-basedir=BASEDIR
+                innobackupex --incremental /data/backups --incremental-basedir=INCREMENTAL-DIR-1
+            2. 基于LSN增量备份
+                innobackupex --incremental /data/backups --incremental-lsn=1291135
+                innobackupex --incremental /data/backups --incremental-lsn=1358967
+        以上所有的操作,最后出现一条数据显示OK为正确:
+            120103 22:00:12 innobackupex: completed OK!  
+完整备份恢复：
+    注意：远程备份的需要先复制到本地，打包的需要先解压： tar -izvf   #说明：必须带i参数
+    停止数据库： mysqladmin -uuser -ppassword shutdown
+    删除要恢复的数据库： rm -f /var/lib/mysql/test 
+	将备份文件中的日志应用到备份的数据文件上：
+        innobackupex --user=root --password=openstack --apply-log /backup-dir/
+    将备份文件的数据恢复到数据库中：
+        innobackupex --user=root --password=openstack --copy-back /backup-dir/
+    修改mysql的权限： chown mysql:mysql /var/lib/mysql/
+    注意： 此目录下一定包含三个以ib*开头的文件
+恢复从库时注意：
+    查看主库节点的位置信息：cat xtrabackup_binlog_info
+    使用从库脚本启动
+增量备份恢复：
+    1. 合并
+        innobackupex --apply-log --redo-only BASE-DIR
+    2. 依次增加 增量数据
+        innobackupex --apply-log --redo-only BASE-DIR --incremental-dir=INCREMENTAL-DIR-1
+        --redo-only: 被用来合并所有的增量数据，除了最后一次不能使用
+    3. 应用
+        innobackupex --apply-log BASE-DIR
+    4. 恢复 
+        innobackupex --user=root --password=openstack --copy-back /backup-dir/
+        
+备份部分数据库:
+     innobackupex --include='^mydatabase[.]mytable' /path/to/backup
+     
+压缩备份(目前已不推荐tar)：
+    增量流被
+    xbstream 
+    1. 创建base
+        innobackupex /data/backups
+        获取本地
+            innobackupex --incremental --incremental-lsn=LSN-number --stream=xbstream ./ > incremental.xbstream
+        取出本地
+            xbstream -x < incremental.xbstream
+            
+        获取本地流被 并放到远程
+            innobackupex  --incremental --incremental-lsn=LSN-number --stream=xbstream ./ | /
+ssh user@hostname " cat - | xbstream -x -C > /backup-dir/"
