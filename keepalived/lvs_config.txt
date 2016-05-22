@@ -45,6 +45,10 @@
             ipvs# ipvsadm -a -t virtual.service:http -r realserver1:http -w 100
             ipvs# ipvsadm -a -t virtual.service:http -r realserver2:http -w 1000
 
+        导出导入数据:
+            导出:ipvsadm -Sn > ipvsadm.ipvs
+            导入:ipvsadm -R  < ipvsadm.ipvs
+            注意: 导出数据时, 一定要加小n选项,不然会自动改变成localhost.localdomain,大坑
 配置：
 	DR:
 		RS:
