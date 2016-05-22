@@ -37,3 +37,5 @@
 		set character_set_connection = utf8;
 查看状态:
     mysqladmin -uroot -popenstack status
+查看运行的进程:
+    show processlist;
