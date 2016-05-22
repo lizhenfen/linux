@@ -50,6 +50,10 @@
             导入:ipvsadm -R  < ipvsadm.ipvs
             注意: 导出数据时, 一定要加小n选项,不然会自动改变成localhost.localdomain,大坑
 配置：
+        NAT:
+           启用路由:
+               echo 1 > /proc/sys/net/ipv4/ip_forward
+           RS的网关地址指向LVS的内网地址
 	DR:
 		RS:
 			1. 配置VIP:
