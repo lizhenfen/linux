@@ -1,5 +1,6 @@
 #!/bin/bash
-#keepalived主机 暂时不支持此脚本
+#keepalived主机不要运行此脚本
+#直接加配置文件即可
 . /etc/init.d/functions
 
 VIP="192.168.56.11"
