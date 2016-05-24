@@ -37,10 +37,4 @@ Java环境(jdk)：
 		2. 使用ajp协议,更快(mod_jdk,mod_proxy)
 	3. nginx + tomcat
 		1. 使用http协议
-#默认文档路径：
-   appBase #默认文档目录
-	#设置文档路径:
-		<Context path="" docBase='' debug="0" reloadable="false" crossContext="true">
-   #path: 访问路径   
-   #docBase: 二级目录,相对于appBase
    
