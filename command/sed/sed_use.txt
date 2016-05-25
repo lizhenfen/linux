@@ -1,18 +1,28 @@
 sed [option] [command] inputfile
 option:
 	-n: 默认不输出
-	-e: 执行多个命令
-	-f: 指定执行命令的文件
-	-i: 直接修改原文件, 会修改源文件的所有者, 配合-c 不更改源文件
+	-e: 每个选项指定一个命令,可重复多个-e选项
+	-f: 指定sed脚本文件
+	-i: 直接修改原文件, 会修改源文件的所有者, 配合-c选项先备份源文件(在后缀上加c),然后在修改
 	-l: 指定行的长度,需要和l命令配合
 command:
 	p: 打印输出
-	d: 删除模式空间的行
-	w file: 写入到文件, 同时输出到屏幕, -n 屏幕不显示
-	i: 忽略大小写
+	d: 删除匹配的行
+	i: 匹配的行前面插入
+        a: 匹配的行后面插入
+        c: 修改
+        s: 替换
+        y: 按字符替换
+        l: 打印(显示非打印字符)
+        L: 打印(不显示非打印字符)
 	n；打印当前模式空间的内容,然后清空当前模式空间,继续读取下行数据
+        N: 匹配内容时,立即读取下一行的内容
+        r file: 读取文件
+	w file: 写入到文件, 同时输出到屏幕, -n 屏幕不显示
 	e: 执行模式，将模式空间的任何内容当作shell执行
-	'{;}' : 可以将多个命令分组执行, 与 -e 等同 
+	q: 退出
+        '{;}' : 可以将多个命令分组执行, 与 -e 等同 
+        
 指定地址范围：
 	sed -n '1p' passwd #打印第一行
 	sed -n '1,2p' passwd #打印第一行 到 第 二行
@@ -22,10 +32,11 @@ command:
 	sed -n '/root/ !p' passwd #匹配root的行不打印
 模式匹配：
 	sed -n '/root/p' passwd #打印包含root的行  精准匹配
-	sed -n '/root/,4 p' passwd #打印第一次匹配root的行到第四行, 若无，打印第四行以后匹配到的行
+	sed -n '/root/,4 p' passwd #打印第一次匹配root的行到第四行, 若没有匹配到，则只打印第四行以后匹配到的行
 	sed -n '/root/,/lizhen/ p' passwd #打印匹配root的行 到 lizhen的行
 删除：
-	sed 'd' passwd
+	sed 'd' passwd #删除全部
+        sed '1d' passwd #删除第一行
 模式写入文件：
 	sed 'w file' passwd #屏幕打印, 同时写入文件
 	sed -n -e '/root/ w file.txt' -e '/nobody/ w file.txt' passwd #匹配root或nobody的 行写入
@@ -46,6 +57,7 @@ command:
 	sed '1,2 s/root/ROOT/' passwd #第一行到第二行 中的root替换成ROOT
 	只替换指定的位置(1..512):
 		sed 's/a/A/2' passwd #只替换第二次出现的 字母a
+        sed '[address]y/source_character/desctination_character/' #只把指定的字符替换成新的字符
 执行：
 	file:
 		/etc/passwd
