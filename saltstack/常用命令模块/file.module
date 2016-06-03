@@ -1,0 +1,558 @@
+salt '*' sys.list_funtions file  #查看file模块下的所有函数
+
+    - file.access: 
+        描述: 测试salt进程是否对指定文件有指定的访问权限
+        权限：
+            f: 测试是否存在路径
+            rwx: 路径是否有: 可读，可写， 可执行权限
+        Example:
+            salt '*' file.access /path/to/file f
+            salt '*' file.access /path/to/file x
+            salt '*' file.access /root/ x
+            
+    - file.append: 
+        描述: 附加文件到某个文件的末尾
+        Example:
+            salt '*' file.append /etc/motd args='cheese=spam'  #增加一行
+            salt '*' file.append /etc/motd args=['cheese=spam','name'='lizhen' ]  #增加多行
+            
+    - file.apply_template_on_contents
+        描述： 返回 应用模板引擎后的内容
+        contents:  模板字符串
+        template: 模板格式
+        context:  模板中需要重写的变量
+        defaults: 默认的context
+        
+        Example:
+            salt '*' file.apply_template_on_contents \
+            contents='This is a {{ template }} string.' \
+            template=jinja \
+            "context={}" "defaults={'template': 'cool'}" \
+            saltenv=base
+            
+    - file.basename
+        描述： 返回路径的最后的文件名, 默认分割符： /
+        Example:
+            salt '*' file.basename '/root'
+            
+    - file.blockreplace
+        描述： 通过 line 替换一个文件中文本块的内容,
+               将在内存中保存2份数据：原始的和编辑的
+        path：将编辑的文件的路径
+        marker_start: 匹配到的起始行
+        marker_end： 匹配到的结束行
+        content： 匹配的 起始行和结束行 之间替换的内容
+        append_if_not_found： 默认False, 若marker未被匹配, 且此值为True, 则附加到文件末尾
+        backup： True: 备份文件, False: 不备份
+        dry_run： 不作任何编辑
+        show_changes： 显示编辑前后的不同的内容, False: 返回false若数据未改变
+        Example:
+            salt '*' file.blockreplace /etc/hosts \
+            '#-- start managed zone foobar : DO NOT EDIT --' \
+            '#-- end managed zone foobar --' 
+            $'10.0.1.1 foo.foobar\n10.0.1.2 bar.foobar' True
+
+        
+    - file.check_file_meta:
+        描述： 检测文件的源数据(Metadata)是否发生改变
+        支持Hash类型： ha512, sha384, sha256, sha224, sha1, and md5·
+        
+        Example:
+            salt '*' file.check_file_meta /etc/httpd/conf.d/httpd.conf salt://http/httpd.conf '{hash_type: 'md5', 'hsum': <md5sum>}' root, root, '755' base
+
+        
+    - file.check_hash：
+        描述： 检查文件是否匹配指定的hash值
+        
+        Example:
+            salt '*' file.check_hash /etc/fstab md5:<md5sum>
+        
+    - file.check_managed:
+        描述： Check to see what changes need to be made for a file
+        
+        Example:
+            salt '*' file.check_managed /etc/httpd/conf.d/httpd.conf salt://http/httpd.conf '{hash_type: 'md5', 
+                                    'hsum': <md5sum>}' root, root, '755' jinja True None None base
+    
+    - file.check_managed_changes
+        描述： Return a dictionary of what changes need to be made for a file
+        
+        Example:
+            salt '*' file.check_managed_changes /etc/httpd/conf.d/httpd.conf salt://http/httpd.conf '{hash_type: 'md5', 
+                                    'hsum': <md5sum>}' root, root, '755' jinja True None None base
+    - file.check_perms:
+        描述： 检测文件的权限和属主
+        
+        Example:
+            salt '*' file.check_perms /etc/sudoers '{}' root root 400
+
+    - file.chgrp:
+        描述： 改变文件的属主
+        
+        Example:
+            salt '*' file.chgrp /etc/passwd root
+        
+    - file.chown:
+        描述： 改变文件的属主和属组
+        
+        Example:
+            salt '*' file.chown /etc/passwd root root
+        
+    - file.comment:
+        描述： 注释文件的指定行
+        path: 要编辑的文件的完整路径
+        regex： 要注释的文件的正则表达式
+        char： ``#``插入到要被注释的行的开始
+        backup：``.bak``  在编辑之前备份文件的后缀
+        Example:
+            salt '*' file.comment /etc/modules pcspkr
+            salt '*' file.comment /etc/hosts '^10.*'
+            
+    - file.comment_line：
+        描述： 注释或取消注释 文件中的匹配行
+        :param path: 文件全路径
+        :param regex: 匹配的文件行
+        :param char: 注释行的字符, 或取消行注释的字符, 默认#
+        :param cmnt: True: 注释行  False: 取消注释   默认True
+        :param backup: 备份文件的后缀, 默认'.bak'
+        :return: 成功返回True, 失败返回Fasle
+        Example:
+            salt '*' file.comment_line '/etc/modules' '^pcspkr'
+            salt '*' file.comment_line 'C:\salt\conf\minion' '^log_level: (warning|info|debug)' '#' False '.bk'
+        
+    - file.contains:   (已抛弃, file.search)
+        描述： 若文件中 包含匹配的行返回True
+        Example:
+            salt '*' file.contains /etc/crontab 'mymaintenance.sh'
+    - file.contains_glob:(已抛弃, file.search)
+        描述： 若模式匹配到文件中存在指定的字符串返回True
+        Example:
+            salt '*' file.contains_glob /etc/foobar '*cheese*'       
+    - file.contains_regex: (已抛弃, file.search) 
+    - file.contains_regex_multiline
+    
+    - file.copy:
+        描述： 复制文件或目录
+        Example:
+        salt '*' file.copy /path/to/src /path/to/dst
+        salt '*' file.copy /path/to/src_dir /path/to/dst_dir recurse=True  #recurse 递归, cp -r 
+        salt '*' file.copy /path/to/src_dir /path/to/dst_dir recurse=True remove_existing=True #remove_existing 删除dst中的文件
+        
+    - file.delete_backup：
+        描述： 删除使用state|file 备份的文件
+        backup_id: 使用 file.list_backups列出的备份的id
+        Example:
+            salt '*' file.delete_backup /var/cache/salt/minion/file_backup/home/foo/bar/baz.txt 0
+        
+    - file.directory_exists:
+        描述： 测试目录是否存在
+        Example:
+            salt '*' file.directory_exists /etc
+        
+    - file.dirname:
+        描述： 返回 路径中的目录部分
+        Example:
+            salt '*' file.dirname 'test/path/filename.config'
+        
+    - file.diskusage:
+        描述： 迭代计算路径下所有文件使用的字节, 单位: byte
+        Example:
+            salt '*' file.diskusage /etc
+        
+    - file.extract_hash：
+        描述： 提取文件的hash字符并保存到指定文件
+        Example:
+            salt '*' file.extract_hash /etc/foo sha512 /path/to/hash/file
+        
+    - file.file_exists:
+        描述： 检测文件是否存在
+        Example:
+            salt '*' file.file_exists /etc/passwd
+        
+    - file.find:
+        描述： 类似unix下的find  
+        name    = path-glob                 # case sensitive
+        iname   = path-glob                 # case insensitive
+        regex   = path-regex                # case sensitive
+        iregex  = path-regex                # case insensitive
+        type    = file-types                # match any listed type
+        user    = users                     # match any listed user
+        group   = groups                    # match any listed group
+        size    = [+-]number[size-unit]     # default unit = byte
+        mtime   = interval                  # modified since date
+        grep    = regex                     # search file contents
+        delete [= file-types]               # default type = 'f'
+        exec    = command [arg ...]         # where {} is replaced by pathname 
+        print  [= print-opts]
+        maxdepth = maximum depth to transverse in path
+        mindepth = minimum depth to transverse before checking files or directories
+        Example:
+            salt '*' file.find / type=f name=\*.bak size=+10m
+            salt '*' file.find /var mtime=+30d size=+10m print=path,size,mtime
+            salt '*' file.find /var/log name=\*.[0-9] mtime=+30d size=+10m delete
+
+    - file.get_devmm:
+        描述：获取设备文件的 主/次 信息
+        Example:
+            salt '*' file.get_devmm /dev/chr
+            
+    - file.get_diff:
+        描述:  返回minion上的文件 和 master上文件的不同
+        Example:
+            salt '*' file.get_diff /home/fred/.vimrc salt://users/fred/.vimrc
+
+    - file.get_gid:
+        描述： 返回指定文件的GID
+        follow_symlinks: 
+        Example:
+            salt '*' file.get_gid /etc/passwd   
+    - file.get_group:
+        描述： 返回指定文件的Group
+        Example:
+            salt '*' file.get_group /etc/passwd
+            
+    - file.get_hash:
+        描述： 获取文件的Hash
+        Example:
+            salt '*' file.get_hash /etc/shadow
+            
+    - file.get_managed:
+        描述： 返回管理的文件数据 file.managed
+        Example:
+            salt '*' file.get_managed /etc/httpd/conf.d/httpd.conf jinja salt://http/httpd.conf '{hash_type: 'md5', 
+                                                    'hsum': <md5sum>}' root root '755' base None None
+
+    - file.get_mode:
+        描述： 返回文件的 权限(0644)
+        Example:
+            salt '*' file.mode /etc/passwd
+            
+    - file.get_selinux_context:
+        描述： 获取指定文件的 selinux的上下文
+        Example:
+            salt '*' file.get_selinux_context /etc/hosts
+            
+    - file.get_sum:
+        描述： 返回指定文件的 hash 
+            * md5
+            * sha1
+            * sha224
+            * sha256 **(default)**
+            * sha384
+            * sha512
+        Example:
+            salt '*' file.get_sum /etc/passwd sha512
+            
+    - file.get_uid:
+        描述： 返回指定文件的 用户id
+        Example:
+            salt '*' file.get_uid /etc/passwd
+            
+    - file.get_user:
+        描述： 返回指定文件的用户名
+        Example:
+            salt '*' file.get_user /etc/passwd
+            
+    - file.gid_to_group:
+        描述： 转换gid成 用户组名
+        Example:
+            salt '*' file.gid_to_group 0
+            
+    - file.grep:
+        描述: 查找指定文件中的字符串
+        Example:
+            salt '*' file.grep /etc/passwd nobody
+            salt '*' file.grep /etc/sysconfig/network-scripts/ifcfg-eth0 ipaddr -- -i
+            salt '*' file.grep /etc/sysconfig/network-scripts/ifcfg-eth0 ipaddr -- -i -B2
+            salt '*' file.grep "/etc/sysconfig/network-scripts/*" ipaddr -- -i -l
+
+    - file.group_to_gid:
+        描述： 转换 用户组名 成GID
+        Example:
+            salt '*' file.group_to_gid root
+
+    - file.is_blkdev:
+        描述： 检测文件是否存在, 且是否是 block设备
+        Example:
+            salt '*' file.is_blkdev /dev/blk
+            
+    - file.is_chrdev:
+        描述： 检测文件是否存在, 且是否是 char设备
+        Example:
+            salt '*' file.is_chrdev /dev/chr
+            
+    - file.is_fifo:
+        描述： 检测文件是否存在, 且是否是 fifo 设备
+        Example:
+            salt '*' file.is_fifo /dev/fifo
+    - file.is_link
+        描述： 检测文件是否存在, 且是否是 软链接
+        Example:
+            salt '*' file.is_link /path/to/link
+    - file.join
+        描述： 返回正常的文件路径
+        Example:
+            {% set www_root = '/var' %}
+            {% set app_dir = 'myapp' %}
+            myapp_config:
+              file:
+                - managed
+                - name: {{ salt['file.join'](www_root, app_dir, 'config.yaml') }}
+
+           salt '*' file.join '/' 'usr' 'local' 'bin' 
+           
+    - file.lchown
+        描述： 改变文件的属主和属组, 不允许软连接
+        Example:
+            salt '*' file.chown /etc/passwd root root
+            
+    - file.line
+        描述： 编辑配置文件中的某行
+        :param path: 文件路径
+        :param content: 匹配行的内容
+        :param mode: 操作模式
+            :Ensure: 若行不存在, 增加
+            :Replace: 若行存在, 替换
+            :Delete: 若行存在, 删除
+            :Insert: 插入行
+        :param location: 参数位置
+            :start: 替换文件的开始位置
+            :end: 替换文件的结束位置
+        :param before: 正则 或开始提取内容的标志
+        :param after: 正则 或结束提取内容的标志
+        :param show_changes: 显示改变的内容
+            False: 若文件未改变, 返回False
+            True: 默认 
+        :param backup: 创建备份文件和以下扩展
+            "Year-Month-Day-Hour-Minutes-Seconds"
+        :param quiet: 忽略异常
+        Example:
+            salt '*' file.line /etc/nsswitch.conf "networks:	files dns" after="hosts:.*?" mode='ensure'
+    - file.link
+        描述： 创建硬连接
+        Example:
+            salt '*' file.link /path/to/file /path/to/link
+            
+    - file.list_backup
+        描述： 列出指定文件的上个版本ID(由file.backup 或 state.backup)
+        Example:
+            salt '*' file.list_backup /foo/bar/baz.txt
+    - file.list_backups
+        描述： 列出指定文件的上个版本ID(由file.backup 或 state.backup)
+        Example:
+             salt '*' file.list_backups /foo/bar/baz.txt
+             
+    - file.list_backups_dir
+        描述： 列出指定目录的上个版本ID(由file.backup 或 state.backup)
+        Example:
+            salt '*' file.list_backups_dir /foo/bar/baz/
+            
+    - file.lstat
+        描述： 返回指定文件或目录的 lstat 属性, 不支持软连接
+        Example:
+            salt '*' file.lstat /path/to/file
+            
+    - file.makedirs
+        描述： 确定指定目录存在, 不存在创建
+        Example:
+            salt '*' file.makedirs /opt/code/
+            
+    - file.makedirs_perms
+        描述： 与 makedirs一直
+        Example:
+            salt '*' file.makedirs_perms /opt/code
+            
+    - file.manage_file
+    描述： 
+        Example:
+            
+    - file.mkdir
+        描述： 确认目录存在
+        Example:
+            salt '*' file.mkdir /opt/jetty/context
+    - file.mknod
+        描述： 创建 block dev , fifo dev , charactor dev ; 替换mknod
+        Example:
+            salt '*' file.mknod /dev/chr c 180 31
+            salt '*' file.mknod /dev/blk b 8 999
+            salt '*' file.nknod /dev/fifo p
+
+    - file.mknod_blkdev
+        描述： 创建 block dev 
+        Example:
+            salt '*' file.mknod_blkdev /dev/blk 8 999
+
+    - file.mknod_chrdev
+        描述： 创建 char dev
+        Example:
+            salt '*' file.mknod_chrdev /dev/blk 8 999
+    - file.mknod_fifo
+        描述： 创建 fifo dev 
+        Example:
+            salt '*' file.mknod_fifo /dev/blk 8 999
+    - file.move
+        描述： 移动文件或目录
+        Example:
+            salt '*' file.move /path/to/src /path/to/dst
+            
+    - file.normpath
+        描述： 返回正确的路径
+        Example:
+            salt '*' file.normpath 'a/b/c/..'
+            
+    - file.open_files
+        描述： 返回打开的物理文件的 PID 的列表
+        Example:
+            salt '*' file.open_files
+            salt '*' file.open_files by_pid=True  #与上面反转
+            
+    - file.pardir
+        描述： 返回相对路径
+        Example:
+            salt '*' file.pardir
+            
+    - file.patch
+        描述： 应用一个补丁到文件或目录
+        Example:
+            salt '*' file.patch /opt/file.txt /tmp/file.txt.patch
+            
+    - file.path_exists_glob
+        描述： Tests to see if path after expansion is a valid path
+        Example:
+            salt '*' file.path_exists_glob /etc/pam*/pass*
+            
+    - file.prepend
+        描述：  Prepend text to the beginning of a file
+        Example:
+            
+    - file.psed
+    描述： 
+        Example:
+            
+    - file.readdir
+        描述： 返回指定的目录下的所有
+        Example:
+            salt '*' file.readdir /etc/
+
+    - file.readlink
+        描述： 返回软链接的 真实路径
+        Example:
+             salt '*' file.readlink /path/to/link
+             
+    - file.remove
+        描述： 删除指定的文件, 若应用目录,则删除目录及下面的所有数据
+        Example:
+           salt '*' file.remove /tmp/foo
+           
+    - file.remove_backup
+        描述： 删除上一个备份的文件
+        Example:
+             salt '*' file.delete_backup /var/cache/salt/minion/file_backup/home/foo/bar/baz.txt 0
+             
+    - file.rename
+        描述： 重命名一个文件或目录
+        Example:
+            salt '*' file.rename /path/to/src /path/to/dst
+            
+    - file.replace
+        描述： 替换指定文件中匹配的字符 
+        Example:
+            salt '*' file.replace /path/to/file pattern='=' repl=':'
+            salt '*' file.replace /path/to/file pattern="bind-address\s*=" repl='bind-address:'
+            salt '*' file.replace /etc/httpd/httpd.conf pattern='LogLevel warn' repl='LogLevel info'
+            salt '*' file.replace /some/file pattern='before' repl='after' flags='[MULTILINE, IGNORECASE]'
+
+    - file.restore_backup
+        描述： 重存已备份的文件
+        Example:
+            salt '*' file.restore_backup /foo/bar/baz.txt 0
+            
+    - file.restorecon
+        描述： 重置指定文件的 selinux上下文
+        Example:
+            salt '*' file.restorecon /home/user/.ssh/authorized_keys
+            
+    - file.rmdir
+        描述： 删除指定目录, 若非空则失败
+        Example:
+            salt '*' file.rmdir /tmp/foo/
+            
+    - file.search
+        描述： 查找指定文件中的匹配的字符串
+        Example:
+            salt '*' file.search /etc/crontab 'mymaintenance.sh'
+            
+    - file.sed
+        描述： 不再使用, file.replace
+        Example:   
+    - file.sed_contains
+        描述： 不再使用,file.search
+        Example:
+            
+    - file.seek_read
+        描述： 移动到指定文件的指定文件,开始读取
+        Example:
+             salt '*' file.seek_read /path/to/file 4096 0
+             
+    - file.seek_write
+        描述： 移动到指定文件的指定文件,并写入数据
+        Example:
+            salt '*' file.seek_write /path/to/file 'some data' 4096
+            
+    - file.set_mode
+        描述： 设定文件权限
+        Example:
+            salt '*' file.set_mode /etc/passwd 0644
+            
+    - file.set_selinux_context
+        描述： 给指定路径设置指定Selinux标签
+        Example:
+            salt '*' file.set_selinux_context path <role> <type> <range>
+            
+    - file.source_list
+        描述： 检测source_list, 并返回去使用
+        Example:
+           salt '*' file.source_list salt://http/httpd.conf '{hash_type: 'md5', 'hsum': <md5sum>}' base
+ 
+    - file.stats
+        描述：返回包含stats的字典 
+        Example:
+             salt '*' file.stats /etc/passwd
+
+    - file.statvfs
+        描述：执行 statvfs 在当前文件系统 
+        Example:
+            salt '*' file.statvfs /
+            
+    - file.symlink
+        描述： 创建软链接
+        Example:
+           salt '*' file.symlink /path/to/file /path/to/link 
+           
+    - file.touch
+        描述： touch命令
+        Example:
+            salt '*' file.touch /var/log/emptyfile
+            
+    - file.truncate
+        描述： 移动到指定文件的指定位置, 并删除之后的数据
+        Example:
+            salt '*' file.truncate /path/to/file 512
+            
+    - file.uid_to_user
+        描述： 转换 uid 成 用户名
+        Example:
+            
+    - file.uncomment
+        描述：不再使用, fiel.replace 
+        Example:
+            
+    - file.user_to_uid
+        描述： 转换 用户名 成 uid
+        Example:
+            
+    - file.write
+        描述： 写数据到文件, 若存在则清空
+        Example:
+            salt '*' file.write /etc/motd args='cheese=spam'
+
