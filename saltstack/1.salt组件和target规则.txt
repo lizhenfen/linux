@@ -1,0 +1,227 @@
+管理对象:
+    用于匹配要执行的主机
+    正则匹配:
+        -E 'Min*' test.ping 
+        
+    列表匹配:
+        -L Minion, Minion01 test.ping
+        
+    Grains匹配:
+        -G 'os:CentOS' test.ping
+        -G 'num_cpus:4' test.ping
+
+    此格式暂时不会用
+    Grains正则匹配:
+        -P 'num_cpus: [1-9]' test.ping
+        #--grains-pcre
+    Pillar匹配:
+        -I 'key:value' test.ping
+        注意事项：
+            1. key 和 value是pillar系统中定义的一对项
+            
+    组匹配:
+        -N groups test.ping
+        注意事项：
+            1. 需要提前知道组的ID
+            2. 在master的配置文件中定义组(/etc/salt/master)
+                nodegroups:
+                  groups: 'L@Minion,Minion01'
+            3. 组定义文件可以在master.d/ 目录下单独定义, 不需要重启master
+            
+    复合匹配:
+        -C 'G@os:CentOS or L@Minion' test.ping
+        注意事项:
+            1. 支持and 和 or　进行复合匹配
+            
+    CIDR匹配:
+        -S '192.168.1.0/24' test.ping
+        
+minion的新配置文件统一单独定义到目录下(/etc/salt/minion.d)
+master的新配置文件统一单独定义到目录下(/etc/salt/master.d) 
+       
+管理对象属性:
+    grains： 
+        描述:
+            记录minion静态信息的组件, 可以简单理解记录着每台minion的CPU,内存,网络,磁盘等信息，
+             我们可以通过 grains.items查看某台主机的所有grains信息, minions的grains信息是在启动时汇报给master
+             
+        命令解析:
+            salt "*" sys.list_functions grains  #查看grains模块的方法
+            salt "*" sys.doc grains             #查看grains的详细用法
+            
+        自定义:
+            1. 通过minion的配置文件
+                grains:
+                  roles:
+                    - webserver
+                    - memcache
+                  deployment: datacenter
+                  cabinet: 13
+                  cab_u: 14-15
+                master上查看指定的grains的item：
+                    salt '*' grains.item roles
+            2. 通过grains的相关模块
+                设置单个item：
+                  格式:
+                    salt '*' grains.append key value
+                  实例:
+                    salt -E 'application*' grains.append saltbook playement
+                设置多个items:
+                    格式:
+                        salt '*' grains.setvals "{'key1': 'val1', 'key2': 'val2'}"
+                    实例：
+                        salt '*' grains.setvals "{'name': 'application', 'newos': 'centos-7'}"
+            3. 通过python脚本定义
+    
+    Pillar:
+        描述：
+            数据管理中心, 定义和存储配置管理中需要的数据,比如用户名,版本等,和grains的定义相同,使用YAML语法
+            
+        命令解析:
+            salt "*" sys.list_functions pillar  #查看pillar模块的方法
+            salt "*" sys.doc pillar             #查看pillar的详细用法
+            
+        自定义：
+            1. master中定义(/etc/salt/master)
+                pillar_roots:
+                  base:
+                    - /srv/pillar
+  
+针对管理对象的操作：
+    modules:
+        描述:
+            用于管理对象的操作的
+        命令解析:
+            查看安装的modules: salt '*' sys.list_modules
+            查看指定modules的所有functions： salt '*' sys.list_functions mdoule
+            查看指定modules的用法： salt '*' sys.doc module
+            其他：
+                1. 支持指定多个module, 默认使用,分割, 可以通过--args-separator=@ 指定分割符
+                
+配置管理：
+    其实就是 编写大量的states文件
+    命令解析:
+        查看minion支持的states列表:  salt "*" sys.list_state_modules
+        查看指定的states的function列表:  salt "*" sys.list_state_functions state_module
+        查看指定的states的function的用法:  salt "*" sys.state_doc module.function
+        
+执行结果处理：
+    Return组件就是 对执行的结果进行存储和返回给其他程序(mysql,mongo,redis,memcache)
+    命令解析:
+        查看所有的returner： salt "*" sys.list_returners
+    流程:
+        1. master端触发任务
+        2. minion端接收触发任务后,直接与return服务器建立连接,把数据存储到存储服务器
+        3. 所有操作在minion端操作
+    实例:
+        redis：
+            1. 修改minion配置文件,添加redis配置
+                redis.db: '0'
+                redis.host: 'redis.ip.address'
+                redis.port: 6379
+            2. 安装 python redis client
+                测试minion端是否安装redis客户端:
+                    python -m "import redis; print redis"
+            3. 重启minion
+                /etc/init.d/minion  restart
+        测试:
+            命令: salt "*" cmd.run "hostname" --return redis
+            redis监控； redis-cli monitor
+    
+    其他:
+        通过监控 event事件实现master直接return到存储服务器
+        
+job管理:
+    在minion的cache目录下的proc会创建jid的文件,保存此次的操作记录,执行完即删除
+    maser的cache目录下的jobs保存详细信息
+    管理：
+        1. salt-run 
+            salt-run -d | grep jobs 
+            注意项:
+                1. 功能有限, 不能删除job
+        2. modules
+            salt "*" sys.doc saltutil | grep job 
+            
+Event 和 Reactor系统:
+    Event: 每个事件的记录,比job更底层,记录更详细的saltstack事件
+    命令解析：
+        查看event事件: salt-run state.event pretty=true   #会停留在监控界面等待数据返回
+    Reactor反应器:  基于每个事件做相应的操作(states), 即一直监控event,然后触发states操作
+        场景: minion第一次启动,即可根据不同的业务完成不同的配置
+        配置(master):
+            reactor:
+              - 'salt/auth':   #监听证书认证
+                - '/srv/reactor/Minion.sls'  #执行sates.sls文件
+              - 'salt/minion/Minion/start'   #监听Minion start event
+                - '/srv/reactor/auto.sls'    #执行states.sls文件 
+        注意项:
+            #auth: act,id 
+            salt/auth	{
+                "_stamp": "2016-06-02T05:57:58.897008", 
+                "act": "accept", 
+                "id": "application-server", 
+                "pub": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1obaMPlrKVhqDfflSpJu\nw8DjMX/49EJshYAgPC8SUjk+MTLmDc6zxjOoXsCngu4YCwFOeKu/ljILszwtcos3\neA7yS0gejPdEgJi9jsnEWCNyU0tq5hybTcWjR1q7XQfkh3S54D4OM07hVNQ+YK2D\nmnHu74IzxR9tvENV6m4NPWJkhZxOlQn6QyTUFBvXBlcdny3mO/APiNQ9YX9GatwK\nQwG4Q1XNSZDHO6/x2Z8fGym2CYA/YBHnfzfjt7+C34kmfl28e3wg03Ve4TCziKGB\nlYJH01afCB9X+L812OSZXth4m/Azpooxs/zXpSfL7Uers9YFCcKmO+QQ5BMwjIOZ\n+QIDAQAB\n-----END PUBLIC KEY-----\n", 
+                "result": true
+            }
+            minion_start	{
+                "_stamp": "2016-06-02T05:57:59.110579", 
+                "cmd": "_minion_event", 
+                "data": "Minion application-server started at Thu Jun  2 01:57:59 2016", 
+                "id": "application-server", 
+                "pretag": null, 
+                "tag": "minion_start"
+            }
+            salt/minion/application-server/start	{
+                "_stamp": "2016-06-02T05:57:59.115347", 
+                "cmd": "_minion_event", 
+                "data": "Minion application-server started at Thu Jun  2 01:57:59 2016", 
+                "id": "application-server", 
+                "pretag": null, 
+                "tag": "salt/minion/application-server/start"
+            }
+
+            
+Renderer组件:
+    默认是YAML,jinja
+    其他的: python
+    sls解析成python格式
+    import yaml,json
+    with open('ones.sls','r') as f:
+        print yaml.safe_load(f)
+    with open('ones.sls','r') as f:
+        print json.dumps(yaml.safe_load(f),indent=4)
+        
+        
+其他组件:
+    Mine: 
+        描述:
+            收集minion数据到存储到master的一个组件,可以指定任何minion模块采集数据
+              master只存储最近收集的数据
+        场景:
+            配合前端负载均衡动态获取mine汇报信息,动态生成配置文件
+        配置:
+            1. 通过在minion配置文件中定义
+                mine_funtions:  #引用模块
+                  network.ip_addrs:
+                    interface: eth0
+            2. 通过模块的方式下发Mine采集任务
+            注意: 通过 salt "*" sys.doc mine  查看更多
+        实例:
+            下发采集任务: salt '*' mine.send network.ip_addrs eth0
+            获取采集任务: salt '*' mine.get network.ip_addrs
+    Peer组件:
+        描述: minion向master发布任务的组件
+        配置(master)：
+            #默认没有启用
+            perr:   #控制minion执行模块
+                Minion:
+                    - test.ping
+            perr_run:  #控制minion执行 runner
+                Minion:
+                    - manage.up
+        实例:
+            salt-call "*" public.public test.ping #可以执行
+            salt-call "*" public.public test.echo #不可执行
+            
+            salt-call "*" public.runner manage.up #可以执行
+            salt-call "*" public.runner manage.down #不可执行
