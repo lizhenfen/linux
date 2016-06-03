@@ -1,0 +1,18 @@
+所有命令在minion本地执行
+salt-call 
+修改配置文件
+    file_client: local   #默认remote
+    file_roots:
+        base:
+            - /srv/salt
+    pillar_roots:
+        base:
+            - /srv/pillar 
+            
+#不要开启salt-minion服务, 此服务默认会不停的连接master, 会产生错误
+
+
+执行states:
+    salt-call --local state.highstate
+    
+    

@@ -1,0 +1,19 @@
+关注性能问题
+建立在中心master和minion之间,并允许建立多层
+syncdic必须运行在一个master上, 并且连接到别的master上
+
+安装:
+    yum install -y salt-syndic
+修改配置文件:
+    syndic_master: master  #高级master
+服务:
+    /etc/init.d/salt-maser restart 
+    /etc/init.d/salt-syndic restart
+   
+高级maser:
+    配置文件：
+        order_masters: True  #
+    服务：
+        /etc/init.d/salt-maser restart
+    查看:
+        salt-key 

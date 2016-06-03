@@ -1,0 +1,27 @@
+支持multi-master 
+冗余的master是 一台的普通的master主机, 直接安装即可
+
+需要解决的问题：
+    1. master keys(需要使用相同的keys, 使用原始的master的key覆盖所有的master)
+        private key: /etc/salt/pki/master/master.pem
+        public key:  /etc/salt/pki/master/master.pub 
+        #注意： 确保先复制key文件到所有的master, 然后启动多master服务
+    2. minion keys(需要同步所有的minion,可以手动,也可以其他共享)   
+        /etc/salt/pki/master/minions
+        /etc/salt/pki/master/minions_pre
+        /etc/salt/pki/master/minions_rejected
+        #虽然直接共享/etc/salt/master目录即可,但不推荐
+    3. file_roots
+        此目录下的文件需要同步, 推荐使用gitfs或共享存储
+    4. pillar_roots
+        和 file_roots目录一样
+    5. master confifgure配置文件
+        所有的master配置文件需要一致
+        
+    6. 设置minion多个minion列表
+        minion:
+            - master01
+            - master02
+            #重启minion
+            
+        

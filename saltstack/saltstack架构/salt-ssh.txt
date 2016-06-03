@@ -1,0 +1,27 @@
+不需要 master和 minion
+速度比 zeroMQ低
+
+安装：
+    yum install salt-ssh -y 
+    
+默认的roster的路径：
+    /etc/salt/roster
+    <SaltId>：  #目标ID
+        host:
+        user:
+        passwd:
+        port:
+        sudo: #true 或false
+        priv: #ssh私钥的路径
+        timeout: #连接ssh时的超时时间
+        thin_dir: #目标系统的salt的存储路径
+        
+        
+执行原始命令：
+    salt-ssh "*" -r "ifconfig"
+    
+总结：
+    1. 生成 roster文件
+        salt-mine自动生成Rosters文件
+    2. 把秘钥放在 minion上
+        salt的文件状态模块管理minion上的authorized_keys
