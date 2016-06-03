@@ -1,7 +1,14 @@
 问题：
 	/var/log/messages 出现： kernel: nf_conntrack: table full ,dropping packet
-		原因： 防火墙的连接跟踪满
+		原因： 
+                     防火墙的连接跟踪满
+                     状态被记录在/proc/net/nf_conntrack(centos7)文件中
+                     通过contrack(connectiuon track)连接跟踪状态的信息,除本机由NAT表的out处理
+                     所有的状态均由 表的prerouting处理
 		临时处理方法(/etc/sysctl.conf)：
+                       1. 清空连接状态(不推荐)
+                            > /proc/net/nf_conntrack
+                       2. 优化系统连接状态数
 					-------------------------------------------
 					   net.nf_conntrack_max = 25000000
 					   net.netfilter.nf_conntrack_max = 25000000

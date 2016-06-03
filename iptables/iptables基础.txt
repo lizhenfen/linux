@@ -1,5 +1,17 @@
 iptables需要用到的模块：
 	lsmod | egrep "nat|filter"
+常见的状态:
+        NEW, ESTABLISHED, RELATED, INVALID
+路径:
+  1. 进入本机
+     网卡 -> prerouting(manage) -> prerouting(nat) -> input(manage) -> input(filter)
+  2. 本机出去
+     local -> output(manage) -> output(nat) -> output(filter) -> postrouting(manage) -> postrouting(nat) -> 网卡
+  3. 本机路由
+     网卡 -> prerouting(manage) ->prerouting(nat) -> forward(manage) -> forward(filter) -> postrouting(nat) -> postrouting(manage) -> 网卡
+  总结:
+     1. 进出本机都必须先经过manage表,然后是其他的表
+     2. 
 命令帮助:
 	iptables -V  		 #查看版本
 	iptables -nvL		 #数字, 详细，显示列表
