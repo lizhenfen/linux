@@ -1,4 +1,4 @@
-#！/bin/bash
+#!/bin/bash
 REPOS="$1"
 REV="$2"
 #文件需要指明环境变量
