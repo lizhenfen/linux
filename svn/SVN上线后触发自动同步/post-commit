@@ -10,8 +10,9 @@ LOGPATH="/app/log"
 [ -d "$LOGPATH" ] && mkdir -p ${LOGPATH}
 
 SVN=/usr/bin/svn
-
-$SVN update --username lizhen --password lizhen /data/www
+#必须先检出svn到/data/www目录
+#可以去掉用户名和密码
+$SVN update --username=lizhen --password=lizhen /data/www
 if [ $? -eq 0 ]
 then
   /usr/bin/rsync -az --delete /data/www /tmp/
