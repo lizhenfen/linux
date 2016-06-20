@@ -2,7 +2,7 @@
 	mysqladmin -uroot -p'oldpass' password 'newpasswd'
 密码忘记:
 	1. 修改配置文件(my.cnf):
-			skip-grant 	     #跳过密码
+			skip-grant-tables 	     #跳过密码
 	2. 重启mysql
 			service mysqld restart
 	3. 修改用户密码
