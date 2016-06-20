@@ -1,0 +1,2 @@
+﻿/usr/share/zoneinfo： 所有时区所在的目录
+ln -s /usr/share/zoneinfo/US/Pacific localtime

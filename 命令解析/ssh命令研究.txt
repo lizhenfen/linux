@@ -1,0 +1,19 @@
+﻿ssh客户端DEBUG调试:
+    -v：
+        ssh -v -l user ip
+ssh的转义字符用法；
+    1. 切换SSH会话(本地/远程)
+        1. 远程登录主机. ssh server
+        2. 切换本地: ~ ctrl + z
+        3. ssh本地后端运行
+        4. 重新进入ssh  fg %1
+    2.  信任登录
+        1. 建立信任
+            ssh-keygen -t dsa
+        2. 拷贝到要登录的主机的 指定用户下
+            ssh-copy-id [-i /path/id_dsa.pub] "-P port user@ip "
+            scp ~/.ssh/id_dsa.pub user@ip:~/.ssh/authorized_keys
+    3. 修改.ssh目录和 authorized_keys
+        .ssh: 700
+        authorized_keys: 644
+    4. 日志: /var/log/secure

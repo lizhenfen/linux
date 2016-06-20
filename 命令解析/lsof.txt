@@ -1,0 +1,10 @@
+列出当前系统打开的文件的工具： lsof
+	列举系统中已经被打开的文件，如果没有指定任何选项或参数，lsof则列出所有活动进程打开的所有文件
+	-a	该选项会使后面选项选出的结果列表进行and操作。
+	-c command_prefix	显示以command_prefix开头的进程打开的文件。
+	-p PID	显示指定PID已打开文件的信息
+	+d directory	从文件夹directory来搜寻(不考虑子目录)，列出该目录下打开的文件信息。
+	+D directory	从文件夹directory来搜寻(考虑子目录)，列出该目录下打开的文件信息。
+	-d num_of_fd	以File Descriptor的信息进行匹配，可使用3-10，表示范围，3,10表示某些值。
+	-u user	显示某用户的已经打开的文件，其中user可以使用正则表达式。
+	-i	监听指定的协议、端口、主机等的网络信息，格式为：[proto][@host|addr][:svc_list|port_list]

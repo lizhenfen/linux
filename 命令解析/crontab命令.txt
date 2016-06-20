@@ -1,0 +1,10 @@
+﻿,: 指定多个时间点
+-： 指定时间段
+@yearly /home/dongwm/test.sh #每年的第一分钟执行
+@monthly /home/dongwm/test.sh #每月执行一次
+
+@dayly /home/dongwm/test.sh  #每天执行一次
+
+@reboot /home/dongwm/test.sh  #每次重启执行一次
+
+* * * * * sleep 20; /home/dongwm/test.sh #没20秒执行一次

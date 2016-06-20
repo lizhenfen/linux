@@ -1,0 +1,12 @@
+﻿ -c: 使用断点续传
+ -b: 后台下载
+ -O: 指定下载的文件名称
+ --limit-rate: 限制下载速度, --limit-rate=3k
+ -i: 指定下载链接
+ --reject: 限制下载类型
+ -o: 指定下载日志
+ -A: 仅下载指定的类型
+ --ftp-user
+ --ftp-password: 下载ftp类型的文件
+ 
+ --mirror -p --convert-links -P

@@ -1,0 +1,10 @@
+﻿忽略大小写
+    find . -i -name
+指定最小深度和 最大深度
+    find / -minpath 1 -maxpath 2
+指定文件属性
+    find / -perm -g=r    #组权限为r,可以包含其他权限
+    find / -perm g=r    #组权限为r,不包含其他
+    
+查找空文件
+    find / -empty

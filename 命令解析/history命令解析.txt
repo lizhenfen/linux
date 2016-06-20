@@ -1,0 +1,13 @@
+﻿记录历史命令的条目数:
+    HISTSIZE=1000 
+去除重复的命令:
+    HISTCONTROL=ignoredups
+记录历史命令的格式:
+    HISTTIMEFORMAT=%F %T root |
+不在历史记录中记录指定的命令,多条使用:分隔
+    HISTIGNORE = "ls : ls -F"
+    HISTIGNORE = ""   #不适用过滤
+! + 命令: 执行历史记录中的完整命令
+!!:$    : 上条命令中的文件名
+!^      : 多个文件中最开始的文件
+!cmd:2  : 命令cmd 中的第二个参数 

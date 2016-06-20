@@ -1,0 +1,14 @@
+﻿paste
+    联合多个文件中的行
+    默认新文件使用<tab>分割到标准输出, 
+    输入没有文件或者输入为 -时, 读取标准输入
+    -d: 指定输出分割符
+    -s：横向输出,而不是默认的纵向输出
+    
+实例:
+    seq 10 > test1.txt
+    seq 9  > test2.txt
+    
+    paste test1.txt test2.txt
+    paste -d ' ' test1.txt test2.txt
+    paste -s test1.txt test2.txt

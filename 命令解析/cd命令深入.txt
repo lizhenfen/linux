@@ -1,0 +1,12 @@
+﻿CDPATH: 定义特别的目录
+    /var/log/下存在目录: a, b, c
+    CDPATH=/var/log
+    cd a  #切换到/var/log/a
+
+命令联合使用
+    function mkdircd(){
+        mkdir -p "$@" && eval cd ""\$$#"";  
+    
+    }
+自动纠正拼写错误,不支持CDPATH  
+    shopt -s cdspell

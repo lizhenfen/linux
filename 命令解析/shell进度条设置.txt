@@ -1,0 +1,21 @@
+﻿http://www.dongwm.com/archives/shell-%E8%BF%9B%E5%BA%A6%E6%9D%A1/
+1. 定时实现效果 progress:[##################################################]100% 
+    b=''
+    for ((i=0;$i<=100;i+=2))
+    do
+        printf "progress: [%-50s]%d%%\r" $b $i
+        sleep 0.1 
+        b=#$b
+    done
+    echo ''
+2. 
+    ==============================================>   92% 
+    i=0
+    while [ $i -lt 50 ]
+    do
+        ((i++))
+        echo -ne "=>\033[s"
+        echo -ne "\033[40;55H"$((i*2*100/100))%"\033[u\033\[1D:"
+        usleep 50000
+    done
+    echo ""
