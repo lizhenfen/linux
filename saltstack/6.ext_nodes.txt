@@ -1,0 +1,34 @@
+ext_nodes： 
+    平时使用saltstack，定义top.sls 使用minion和state对应, 
+
+扩展:
+    1. monogodb 中查询 minion和state文件的对应关系
+        master_tops:
+        mongo:
+          collection: tops
+          id_field: _id
+          re_replace: ""
+          re_pattern: \.example\.com
+          states_field: states 
+          environment_field: environment
+    2. 通过 ext_nodes的形式
+        master_tops:
+            ext_nodes: cobbler-ext-nodes
+    3. reclass_adapter:
+        master_tops:
+        reclass:
+          storage_type: yaml_fs
+          inventory_base_uri: /srv/salt 
+    4. 从cobbler直接获取
+        master_tops:
+        cobbler: {} 
+        cobbler.url: https://example.com/cobbler_api  #default
+        cobbler.user: username
+        cobbler.password: password
+
+ext-nodes:
+    #/srv/salt/saltbook.py
+    引用:
+        master_tops:
+            ext_nodes: /srv/salt/saltbook.py
+    

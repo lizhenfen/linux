@@ -1,0 +1,12 @@
+1. state文件的默认存放位置:
+    /srv/salt/_states/
+2. 原理
+    1. 通过 yaml_safe_load() 成python的dict的数据类型
+    2. state调用同名的module处理实际操作
+   
+同步state文件:
+    salt '*' saltutils.sync_states
+minion上的文件地址:
+    /var/cache/salt/minion/extmods/states
+    查看命令：
+        salt '*' cmd.run 'ls /var/cache/salt/minion/extmods/states'

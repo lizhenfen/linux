@@ -1,0 +1,13 @@
+one.sls文件
+/tmp/foo.conf:    #id
+    file.managed: #file.managed方法
+        - source: salt://foo.conf  #文件来源,master上设置
+        - user: root  #文件属主
+        - group: root #文件属组
+        - mode: 644   #文件权限
+        - backup: minion #备份原文件
+执行单个文件：
+    salt 'Minion' state.sls one.sls
+存在入口文件时:
+    salt 'Minion' state.highstate
+        

@@ -1,0 +1,29 @@
+1. 基本Grains配置
+    1. 直接修改/etc/salt/minion中配置(并不推荐)
+        #grains:    #启用此配置,然后在下面定义即可
+        #  roles:
+        #    - webserver
+        #    - memcache
+        #  deployment: datacenter4
+        #  cabinet: 13
+        #  cab_u: 14-15
+    2. 在/etc/salt/minion.d目录下增加单独的配置文件
+        1. /etc/salt/minion：
+            #default_include: master.d/*.conf   #默认包含文件的配置
+        2. /etc/salt/minion.d/ 
+            #grains:    #启用此配置,然后在下面定义即可
+            #  roles:
+            #    - webserver
+            #    - memcache
+            #  deployment: datacenter4
+            #  cabinet: 13
+            #  cab_u: 14-15
+            
+2. 扩展grains, 自定义
+    定义规则:
+        1. master定义配置文件, 默认路径:/srv/salt/_grains/
+        2. 定义正常的python函数
+        3. 返回 dict 类型即可
+        4. 同步到指定客户端
+            salt "*" saltutil.sync_grains
+        5. minion文件保存的位置: salt "*" cmd.run "ls /var/cache/salt/extmodes/grains/"

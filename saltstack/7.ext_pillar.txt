@@ -1,0 +1,5 @@
+1. 修改路径
+    extension_modules: /srv/salt/modules
+    ext_pillar:
+        #接口脚本名称： salt
+        - salt: []

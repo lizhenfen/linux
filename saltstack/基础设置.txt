@@ -1,0 +1,7 @@
+环境:
+    1. 系统环境和网络环境
+    2. saltstack的 file_roots 和 pillar_roots 环境设置
+    
+    Jid: job id, 格式为%Y%m%d%H%M%S%f
+
+    master将minion的执?结果存放在本地/var/cache/salt/master/jobs?录, 默认缓存24?时(可以通过修改master配置?件keepjobs选项调整

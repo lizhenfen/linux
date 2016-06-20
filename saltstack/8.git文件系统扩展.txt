@@ -1,0 +1,31 @@
+1. 默认state文件保存在/srv/salt/，这是通过file_roots定义的
+
+查看master的配置文件: fileserver_backend
+    #fileserver_backend:
+    #  -  roots   #默认本地的文件系系统
+    #  -  git     #若使用gitfs, 修更改roots为git
+    #gitfs_remotes:
+    #  - http://url
+    #gitfs_root: states
+  #roots定义的file_roots路径
+    #file_roots:
+    #   base:
+    #       - /srv/salt/
+    #
+    #
+    #
+    默认的gitfs的gitfs_provide驱动: GitPython
+        安装： pip install gitpython
+2. 更新文件系统
+    salt-run fileserver.update
+3. 开启master中的
+    pillar_opts: True
+    
+tops.sls
+include:
+  - {{ pillar['master']['environment'] }}
+stage.sls:
+    {{ pillar['master']['environment'] }}:
+      '*':
+        - cpis
+        

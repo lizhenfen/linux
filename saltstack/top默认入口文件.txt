@@ -1,0 +1,77 @@
+base:   #base环境
+    '*':    #目标target,匹配所有的主机
+        - one  #引用one.sls 或 one/init.sls 的states文件
+    'Minion':  # target匹配指定主机
+        - tow
+    'Minion1':
+        - three
+执行：
+    salt '*' state.highstate
+    
+返回执行结果：
+    查看执行的Return列表：
+        salt 'Minion' sys.list_returners
+    #要确保minion端安装和配置所有的依赖包
+    实例：
+        1. redis
+            修改minion配置:
+                redis.db: '0'
+                redis.host: 'redis.fqdn.com'
+                redis.port: 6379
+            minion端安装redis python client
+            测试：
+                python -m "import redis; print redis(2,10,3)"
+        执行： 
+            salt 'Minion' cmd.run 'hostname' --return redis
+            redis监控： redis-cli minitor
+            
+job管理：
+    master执行操作会产生jid,minion端会在cache的proc目录创建jid文件,操作完成后自动删除
+    master端记录到cache目录下的jobs
+    管理方式: salt-run 和 module
+    salt-run -d | grep jobs #查看用法
+    salt '*' sys.doc saltutil | grep jobs
+  
+Event事件：
+    salt-run state.event pretty=True  #查看event事件
+Reactor: 基于event的每个事件的相应操作
+  场景： minion启动时完成系统初始化和 指定的操作
+  修改配置文件：   
+    master:
+        reactor:
+            - 'salt/auth':  #监听证书认证
+                - /srv/reactor/mioion.sls #执行states.sls文件
+            - 'salt/minion/Minion/start'  #监听Minion启动
+                - /srv/reactor/auto.sls 
+renderer组件：
+    py定义states文件：
+    test.sls
+    #!py   #指定renderer,这里使用python语言
+    def run():  #此处必须为run
+        example = {}
+        example['/tmp/test']={
+            'file.managed':[
+                {'source':'salt://test'},
+                {'mode': 644},
+                {'user': 'root'},
+                {'template': 'jinja'},
+                {'group':'root'},
+                {'context':{  #pillar grains在python中调用 __grains__, __pillar__
+                    'a': __grains__['os'],
+                    'b': __grains__['a'],
+                },
+                },
+            ],
+        }
+    return example      #返回dict
+  #python读取state.sls文件
+  import yaml,json
+  with open('one.sls','r') as f:
+    print yaml.safe_load(f)
+    #格式化输出
+    #print json.dumps(yaml.safe_load(f),indent=4)
+其他常用组件
+    Mine:
+    Peer:  #配置完成需要重启master
+    
+    

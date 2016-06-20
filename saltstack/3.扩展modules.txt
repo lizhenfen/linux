@@ -1,0 +1,21 @@
+0. 模块的配置路径:
+    默认: /srv/salt/_modules
+1. 模块定义
+    __virtualname__ = 'module_name'
+    def 　__virtual__():
+        """
+          判断模块是否存在
+        """
+        pass
+
+2. 同步到minion的客户端的位置:
+    /var/cache/salt/minion/extmods/modules
+    
+同步到客户端：
+    salt '*' saltutil.sync_modules
+    
+minion查看：
+    salt "*" cmd.run "ls /var/cache/salt/minion/extmods/modules"
+    
+测试：
+    salt "*" puppet.master  #未出现错误即正确
