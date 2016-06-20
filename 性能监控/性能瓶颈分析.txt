@@ -1,0 +1,118 @@
+了解什么是负载？
+	负载分为： CPU负载和I/O负载
+	CPU负载： 单位时间的等待任务数，即平均有多少任务处于等待状态
+	IO负载： 表示多任务的服务器资源争夺而产生的等待时间
+	多任务的实现方式： 内核在短时间内切换进程
+load average计算方式：
+	全局的计算结果,整个系统的负载指标,不能详细分析
+CPU的计算方式：
+	单独记录每个CPU,可以作为整体统计报告也可以具体指标分析
+	内核在生成进程后会记录各进程所使用的CPU时间,称为进程记账
+	通过进程记账适当减少占用CPU时间较长的进程的优先级
+	
+了解系统的整体负载情况：
+	top	  ：简单监控
+	uptime: 监控整个系统的平均负载 
+		load average表示 等待进程的平均数； task_running 和 task_uninteruptible
+		ps aux | egrep (STAT|proces_name)  #查看进程状态 
+			S: Sleeping 可中断睡眠
+			s: 控制进程
+			R: 正在运行
+			D: Disk Sleep 不可中断进程
+			Z: zombie 僵尸进程
+		查看 /proc/loadavg
+当负载较低时，若系统的吞吐量达不到时，查看软件配置，网络，远程主机
+当系统负载较高时，首先确认是CPU负载还是IO负载？
+	流程：
+		观察load average
+			uptime 
+		观察CPU, I/O是否存在瓶颈
+			sar : 可以发现时间变化
+	查看：
+		sar 1 或 vmstat 1   #持续运行一段时间
+		# 需要安装sysstat包
+		[root@localhost data]# sar 1 
+		Linux 3.10.0-327.3.1.el7.x86_64 (localhost.localdomain) 	02/19/2016 	_x86_64_	(1 CPU)
+		05:26:52 AM     CPU     %user     %nice   %system   %iowait    %steal     %idle
+		05:26:53 AM     all      0.00      0.00      0.00      0.00      0.00    100.00
+		05:26:54 AM     all      0.00      0.00      0.00      0.00      0.00    100.00
+CPU高：
+	top,sar 判断是用户还是系统占用了CPU
+	ps 查看进程状态和CPU使用时间,锁定出现问题的进程
+	strace 进一步追踪
+	oprefile : 计数器中断处理入口
+	一般原因：
+		I/O(磁盘、内存)不存在瓶颈的情况下, 系统的load average依然教高
+		程序的逻辑部分负的载超过CPU的承受能力
+磁盘高负载：
+	原因：	
+		程序本身读写频繁,造成输入输出负载高
+		Linux使用了swap造成磁盘的频繁访问
+	查看：sar,vmstat
+	一般原因：
+		ps : 查看是否有特定的进程消耗了大量内存
+		程序不受控制造成占用内存过大，修改程序
+		系统内存不足，无法增加内存时，需要进行分流
+ps -L: 查看线程	
+sar命令解析：
+	sar -u  #CPU
+	[root@localhost ~]# sar -u
+	Linux 3.10.0-327.3.1.el7.x86_64 (localhost.localdomain) 	02/18/2016 	_x86_64_	(1 CPU)
+	时间		    CPU     用户进程占用% nice命令后  系统进程占用时间% io等待时间  KVM虚拟化等占用  空闲
+	03:10:01 AM     CPU     %user     %nice   %system   %iowait    %steal     %idle
+	03:20:01 AM     all      0.01      0.00      0.07      0.02      0.00     99.90
+	03:30:01 AM     all     65.80      0.00      0.22      0.00      0.00     33.98
+	03:40:01 AM     all     86.46      0.00      0.26      0.00      0.00     13.28
+	
+	sar -P ALL  #显示多CPU的详细
+	
+	
+	sar -q  #队列
+	[root@localhost ~]# sar -q
+	Linux 3.10.0-327.3.1.el7.x86_64 (localhost.localdomain) 	02/18/2016 	_x86_64_	(1 CPU)
+	时间	    运行队列的进程数 系统中进程的大小
+	03:10:01 AM   runq-sz  plist-sz   ldavg-1   ldavg-5  ldavg-15   blocked
+	03:20:01 AM         2       136      0.00      0.03      0.24         0
+	03:30:01 AM         2       135      1.08      0.79      0.50         0
+	
+	sar -r  #内存
+	[root@localhost ~]# sar -r
+	Linux 3.10.0-327.3.1.el7.x86_64 (localhost.localdomain) 	02/18/2016 	_x86_64_	(1 CPU)
+	时间		可用内存  使用内存   使用%    缓冲内存    缓存     完成			
+	03:10:01 AM kbmemfree kbmemused  %memused kbbuffers  kbcached  kbcommit   %commit  kbactive   kbinact   kbdirty
+	03:20:01 AM    804840    494644     38.06       948    251796    956456     21.36    271476    139416         0
+	03:30:01 AM    787640    511844     39.39       948    251804    973576     21.74    288532    139360         0
+	03:40:01 AM    804980    494504     38.05       948    251808    956080     21.35    271400    139356         0
+
+	sar -W # 交换分区的使用
+	[root@localhost ~]# sar -W
+	Linux 3.10.0-327.3.1.el7.x86_64 (localhost.localdomain) 	02/18/2016 	_x86_64_	(1 CPU)
+	时间		每秒系统换入的页面数  每秒系统换出的页面数
+	03:10:01 AM  pswpin/s pswpout/s
+	03:20:01 AM      0.00      0.00
+	03:30:01 AM      0.00      0.00
+	
+	sar -c #查询上下文切换数量
+	
+vmstat:[root@localhost ~]# vmstat 1 2
+bi: 每秒读取的块设备数
+bo: 每秒写入的块设备数
+procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st
+ 2  0      0 805608    948 300520    0    0    38    12  523   88 35  0 64  0  0
+ 0  0      0 805592    948 300520    0    0     0     0   55   95  0  0 100  0  0
+
+
+ prefork与worker的差异：
+	多进程不共享内存，多线程共享部分内存，因此内存使用量少
+	多线程共享内存，上下文切换的成本低
+ httpd优化：
+  prefork进程优化
+	ServerLimit:
+	MaxClients:
+	设置根据 最大内存和每个进程占用的内存
+	/proc/pid/status；   VmHWM
+	/proc/pid/smaps  #写时复制的共享内存大小
+  worker：
+	ThreadLimit:每个进程最大线程数
+	ThreadPerChild:每个进程最大线程数
