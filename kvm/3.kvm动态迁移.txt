@@ -1,0 +1,59 @@
+1.共享存储
+    1. /vm *(rw,sync,no_root_squash)  #/etc/exports
+    2. 重启服务  service nfsserver restart
+    3. exportfs -av
+2. 数据迁移
+    virsh list --all
+    virsh migrate vdisk --live qemu+ssh://目标ip地址:/system --unsafe
+    
+动态迁移：http://www.ibm.com/developerworks/cn/cloud/library/1508_wangyx_openstacklivemigrate/index.html
+libvirt默认不支持tcp
+    在 compute01 上执行：
+    [root@compute01]# virsh -c qemu+tcp://nova@compute02/system
+    在 compute02 上执行：
+    [root@compute01]# virsh -c qemu+tcp://nova@compute02/system
+
+修改libvirtd支持tcp:
+	1. 修改/etc/sysconfig/libvirtd 文件。
+		LIBVIRTD_ARGS="--listen"
+	2. 在/etc/libvirt/libvirtd.conf 文件中做如下配置。
+		listen_tls=0
+		listen_tcp=1
+		auth_tcp="none"
+	3. 重启 libvirtd 服务
+其他配置:
+    防火墙
+    配置/etc/sysconfig/iptables，打开 TCP 端口 16509。
+    -A INPUT -p tcp -m multiport --ports 16509 -m comment --comment "libvirt" -j ACCEPT
+    OpenStack Nova
+    在/etc/nova/nova.conf 文件里配置 live_migration 标记。live_migration_flag=VIR_MIGRATE_UNDEFINE_SOURCE,VIR_MIGRATE_PEER2PEER,VIR_MIGRATE_LIVE
+
+迁移前的条件检查
+    动态迁移要成功执行，一些条件必须满足，所以在执行迁移前必须做一些条件检查。
+    权限检查，执行迁移的用户是否有足够的权限执行动态迁移。
+    参数检查，传递给 API 的参数是否足够和正确，如是否指定了 block-migrate 参数。
+    检查目标物理主机是否存在。
+    检查被迁移的虚拟机是否是 running 状态。
+    检查源和目的物理主机上的 nova-compute service 是否正常运行。
+    检查目的物理主机和源物理主机是否是同一台机器。
+    检查目的物理主机是否有足够的内存(memory)。
+    检查目的和源物理主机器 hypervisor 和 hypervisor 的版本是否相同。
+    迁移前的预处理
+    在真正执行迁移前，必须做一下热身，做一些准备工作。
+    在目的物理主机上获得和准备虚拟机挂载的块设备(volume)。
+    在目的物理主机上设置虚拟机的网络(networks)。
+    目的物理主机上设置虚拟机的防火墙(fireware)。
+    迁移
+    条件满足并且做完了预处理工作后，就可以执行动态迁移了。主要步骤如下：
+    调用 libvirt python 接口 migrateToURI，来把源主机迁移到目的主机。
+    dom.migrateToURI(CONF.live_migration_uri % dest,logical_sum,None,CONF.live_migration_bandwidth)
+    live_migration_uri：这个 URI 就是在 3.2.2 里介绍的 libvirtd 进程定义的。
+    live_migration_bandwidth：这个参数定义了迁移过程中所使用的最大的带宽。
+    以一定的时间间隔（0.5）循环调用 wait_for_live_migration 方法，来检测虚拟机迁移 的状态，一直到虚拟机成功迁移为止。
+
+迁移后的处理
+    当虚拟机迁移完成后，要做一些善后工作。
+    在源物理主机上 detach volume。
+    在源物理主机上释放 security group ingress rule。
+    在目的物理主机上更新数据库里虚拟机的状态。
+    在源物理主机上删除虚拟机。

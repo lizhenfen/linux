@@ -1,0 +1,10 @@
+CPU优化： 前2个CPU一般用于系统运行和上下文切换; 一般不使用前2个CPU,而采用其他CPU
+内存优化：
+   /sys/kernel/mm/
+	ksm/pages_shared 0
+	ksm/pages_sharing 0
+	transparent_hugepage/enabled  always
+	transparent_hugepage/defrag   always
+	transparent_hugepage/khugepaged/defrag 0
+IO优化：
+   cfq调度,none
