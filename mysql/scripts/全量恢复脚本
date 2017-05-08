@@ -1,1 +1,12 @@
-innobackupex --user=root --defaults-file=/etc/my.cnf --copy-back backup_data_dir
+直接恢复全量数据：
+     innobackupex --apply-log  BASE-DIR    #修复日志, 此处已在备份时操作了，
+     innobackupex --user=root --defaults-file=/etc/my.cnf --copy-back backup_data_dir
+先恢复增量数据，然后恢复全量数据
+      innobackupex --apply-log --redo-only BASE-DIR    #重做全量备份目
+      innobackupex --apply-log --redo-only BASE-DIR --incremental-dir=INCREMENTAL-DIR-1   #恢复增量备份1
+      innobackupex --apply-log BASE-DIR --incremental-dir=INCREMENTAL-DIR-2    #恢复增量备份2, 最好一个增量备份不 read-only
+      innobackupex --apply-log  BASE-DIR    #修复日志
+      innobackupex --user=root --defaults-file=/etc/my.cnf --copy-back backup_data_dir  #返回数据
+    #备注:
+      1. 为了加快速度，可以指定 --use-memory 参数
+      
