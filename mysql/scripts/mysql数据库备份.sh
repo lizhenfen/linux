@@ -60,8 +60,6 @@ function IncreaMentBackup(){
 if [ "$TODAY" -eq 1 -o ! -d "$BACKUPDIR" ]
 then
     [ -d "$BACKUPDIR/logs" ] || (mkdir -p "$BACKUPDIR/logs")
-    [ -d "$BACKUPDIR/$EVERYDATA" ]  && exit 0
-    mkdir -p "$BACKUPDIR/$EVERYDATA" &>/dev/null
     [ $? -eq 0 ]  && FullBackup
     
 else
