@@ -1,0 +1,1 @@
+innobackupex --user=root --defaults-file=/etc/my.cnf --copy-back backup_data_dir
