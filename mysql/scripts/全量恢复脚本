@@ -1,3 +1,5 @@
+数据备份和还原时，使用的是 innodb 数据库引擎
+
 直接恢复全量数据：
      innobackupex --apply-log  BASE-DIR    #修复日志, 此处已在备份时操作了，
      innobackupex --user=root --defaults-file=/etc/my.cnf --copy-back backup_data_dir
